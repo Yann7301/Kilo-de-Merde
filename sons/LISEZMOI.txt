@@ -1,0 +1,9 @@
+Dépose ici tes vrais sons (format .mp3). Le jeu les utilise automatiquement s'ils existent,
+
+sinon il garde les sons synthétisés. Noms attendus :
+
+rire.mp3 (feinte)  bah.mp3 (carte de merde)  flush.mp3 (chasse d'eau)  slap.mp3 (main sur le tas)
+
+whoosh.mp3 (feinte, main qui se retire)  plop.mp3  card.mp3 (carte donnée)  tick.mp3 (chrono)
+
+win.mp3  lose.mp3  level.mp3 (niveau gagné)  musique.mp3 (musique de fond en boucle)
