@@ -31,7 +31,12 @@ button:disabled{opacity:.4;cursor:default}
 #msg:empty{display:none}
 #gv{background:var(--gold);color:#222;border:0;border-radius:10px;padding:6px 12px;font-weight:800;font-size:13px;box-shadow:0 3px 0 #a97a10}
 #opps{position:fixed;inset:0;pointer-events:none}
-.op{position:absolute;transform:translate(-50%,-46px);display:flex;flex-direction:column;align-items:center}
+.op{position:absolute;transform:translate(-50%,-50%)}
+#plates{position:fixed;inset:0;pointer-events:none}
+.pt{position:absolute;transform:translate(-50%,-50%);background:#000d;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:800;white-space:nowrap;border:1px solid #fff4}
+.pt small{color:var(--gold);font-weight:600}
+.pt .kk{color:var(--gold);margin-left:6px}
+.pt.cal{background:#1f7a45}.pt.fol{background:#b86a12}
 .op.rv .fan{transform:translateX(34px)}.op.rr .fan{transform:translateX(-34px)}
 .pa{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 4px;border-radius:12px;border:2px solid transparent}
 .op.cur .pa{border-color:var(--gold);background:#0006}.op.cal .pa{background:#2e9e5bcc}.op.fol .pa{background:#d9822bcc}
@@ -161,6 +166,15 @@ button:disabled{opacity:.4;cursor:default}
 #fx img.gif{width:min(60vh,270px);border-radius:18px;border:4px solid #fff;box-shadow:0 8px 30px #000b;animation:pop .35s}
 #fx p{bottom:4%!important;font-size:22px;text-shadow:0 2px 6px #000}
 @keyframes blinkstk{from{filter:drop-shadow(0 0 4px #f6b82e)}to{filter:drop-shadow(0 0 18px #ffd34d) brightness(1.4);transform:scale(1.1)}}
+.avw2{position:relative;line-height:0}
+.ring{position:absolute;left:50%;top:50%;width:114%;height:114%;transform:translate(-50%,-50%) rotate(-90deg);pointer-events:none;overflow:visible}
+.ring circle{fill:none;stroke-width:7}
+.ring .rt{stroke:rgba(0,0,0,.35)}
+.ring .rp{stroke-linecap:round;stroke-dasharray:289}
+#hring .rp{transition:stroke-dashoffset .9s linear}
+#fans{position:fixed;inset:0;pointer-events:none}
+.tf{position:absolute;width:0;height:0}
+.tf i{position:absolute;left:-14px;top:-20px;width:28px;height:40px;border-radius:4px;border:1px solid #fff;background:var(--back);transform-origin:50% 130%;box-shadow:0 2px 4px #000a}
 @keyframes pulse{to{box-shadow:0 0 0 3px #fff,0 0 22px 4px var(--gold)}}
 @keyframes sheen{to{transform:translateX(120%)}}
 
@@ -202,10 +216,10 @@ body.shake{animation:shake .3s}
 #cd{font-size:min(34vh,120px)}.hd{font-size:min(20vh,64px)}.mini{font-size:min(10vh,30px)}
 </style></head><body>
 <header id="gh"><button class="ib" onclick="askQuit()">←</button><b id="rnd"></b><div id="pf" class="pf"></div><button class="ib sndb" onclick="toggleSnd()">🔊</button></header>
-<div id="room"></div><div id="opps"></div><div id="pl" class="pl"><div id="tas" class="stk" onclick="tapBtn()"><i></i><i></i><i></i><b id="tasn">0</b></div>TAS DE MERDE</div><div id="mc"><div id="msg"></div></div><div id="lc"><button id="gv" onclick="giveSel()" style="display:none"></button></div>
+<div id="room"></div><div id="opps"></div><div id="fans"></div><div id="plates"></div><div id="pl" class="pl"><div id="tas" class="stk" onclick="tapBtn()"><i></i><i></i><i></i><b id="tasn">0</b></div>TAS DE MERDE</div><div id="mc"><div id="msg"></div></div><div id="lc"><button id="gv" onclick="giveSel()" style="display:none"></button></div>
 <div id="bot">
 <div id="me"><div id="mym"></div><div class="rowb"><button id="srt" onclick="sortBtn()">⇅ TRIER</button><button id="flush" onclick="flushBtn()"></button></div></div>
-<div id="hw"><div id="hand"></div><div class="mrow"><div class="avw"><div id="myav" class="av"></div><div id="cdisc"></div><div id="cdn"></div></div><div class="mt2"><span id="myn" class="np"></span><span id="mykg" class="kg"></span></div></div></div>
+<div id="hw"><div id="hand"></div><div class="mrow"><div class="avw"><div id="myav" class="av"></div><svg id="hring" class="ring" viewBox="0 0 100 100" style="display:none"><circle cx="50" cy="50" r="46" class="rt"/><circle id="hrp" cx="50" cy="50" r="46" class="rp"/></svg></div><div class="mt2"><span id="myn" class="np"></span><span id="mykg" class="kg"></span></div></div></div>
 <div id="btns"><button id="feint" onclick="feintBtn()">🎭<br>FEINTE</button><button id="tap" onclick="tapBtn()"></button></div>
 </div>
 <div id="stage"></div><div id="toasts"></div><div id="bnr"></div>
@@ -225,7 +239,7 @@ body.shake{animation:shake .3s}
 <ul><li>3 joueurs : les rois, les dames, les valets et les 2</li><li>4 joueurs : + les 3</li><li>5 joueurs : + les 4 et les 5</li><li>6 joueurs : + les 6</li></ul>
 <p>Les cartes restantes forment le <b>tas de merde</b>, au milieu de la table. Les cartes en trop sont écartées pour la manche.</p>
 <h3>Les manches</h3><p>Avant de commencer, tout le monde vote pendant 5 secondes pour choisir entre 2 et 6 manches. Le choix le plus voté est retenu ; en cas d'égalité, tirage au sort entre les ex æquo.</p>
-<h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un rond vert puis rouge décompte le temps autour de ton personnage) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
+<h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage ; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
 <h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démarre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
 <h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches.</p>
 <h3>La chasse d'eau</h3><p>Si tu pioches un 7, tu le gardes en réserve (jusqu'aux 4 sept du jeu). Tu peux tirer la chasse d'eau quand tu veux : toutes tes cartes piochées, tes kilos de merde, repartent sous le tas avec le 7. Un bonus acheté au magasin ajoute une carte 7 spéciale (avec une toilette) en plus des 4 vrais 7, soit 5 au maximum.</p>
@@ -321,7 +335,7 @@ const nxt=i=>(i+1)%G.n;
 const kil=p=>p.k.reduce((s,c)=>s+val(c),0);
 const all4=()=>G.P.every(p=>p.h.length===4);
 const OKP=['turn','wait','tapw'];
-const seatEl=i=>i===0?$('hand'):$('op'+i);
+const seatEl=i=>i===0?$('hand'):$('fan'+i);
 function four(p){const h=p.h;if(h.length<4)return false;const a={},b={};h.forEach(c=>{a[c.r]=(a[c.r]||0)+1;b[c.s]=(b[c.s]||0)+1});return Math.max(...Object.values(a),...Object.values(b))>=4}
 function msg(t){$('msg').textContent=t}
 function banner(a,b,ms){const e=$('bnr');e.innerHTML='<div><b>'+a+'</b><br><small>'+b+'</small></div>';e.style.display='flex';setTimeout(()=>{e.style.display='none'},ms||2000)}
@@ -417,7 +431,7 @@ function turn(){
   G.phase='turn';G.call=null;G.sel=null;G.dealing=false;$('stage').innerHTML='';
   const p=G.P[G.cur];render();saveGame();
   if(p.me){msg(four(p)?'🎉 Tu as un carré ! TAPE ! ✋':'À toi ! Touche une carte, puis touche-la encore pour la donner à '+G.P[nxt(G.cur)].nm+' 👇');if(four(p))bipLoop();startTimer()}
-  else{hideTm();msg(p.nm+' choisit une carte…');later(aiTurn,rnd(900,1500))}
+  else{clearRing();msg(p.nm+' choisit une carte…');const T=Math.round(rnd(1500,5500));setRing(p.i,10);for(let s=1;s*1000<T;s++)later(()=>{if(G.phase==='turn'&&G.cur===p.i)setRing(p.i,10-s)},s*1000);later(aiTurn,T)}
 }
 function score(r){const a={},b={};r.forEach(x=>{a[x.r]=(a[x.r]||0)+1;b[x.s]=(b[x.s]||0)+1});const va=Object.values(a),vb=Object.values(b);return Math.max(...va,...vb)*100+va.reduce((s,v)=>s+v*v,0)+vb.reduce((s,v)=>s+v*v,0)}
 function aiTurn(){
@@ -506,7 +520,7 @@ function drawFor(list){
     r.txt=!r.c?nm(r.p)+' : tas vide':r.sv?(r.p.me?'Tu pioches un 7 🚽 (gardé en réserve)':r.p.nm+' pioche une carte : aucun kilo !'):who+R[r.c.r]+S[r.c.s]+' → +'+val(r.c)+' kg';
     setTimeout(()=>{
       if(!r.c)return;
-      fly($('tas'),seatEl(r.p.i),(r.sv&&!r.p.me)?{hide:1}:r.c);
+      fly($('tas'),r.p.me?$('myav'):$('op'+r.p.i),(r.sv&&!r.p.me)?{hide:1}:r.c);
       setTimeout(()=>{if(r.sv)sLevel();else{sBah();sPlop();if(r.p.me)vib(120)}},650);
     },k*350);
   });
@@ -562,7 +576,7 @@ function feintBtn(){
   startCall(0,false,w==='wait'?()=>afterGive(c):w==='tapw'?()=>tapWindow(tn):turn);
 }
 // ===== affichage =====
-const SEATS=[[1417,435],[1263,237],[904,206],[557,243],[397,444]];
+const SEATS=[[1417,435,1279,457],[1262,234,1180,316],[904,206,921,304],[557,242,616,327],[397,444,548,468]];
 function bgBox(){const W=document.documentElement.clientWidth,H=document.documentElement.clientHeight,s=Math.max(W/1800,H/768);return {s,ox:(W-1800*s)/2,oy:(H-768*s)*.5}}
 function render(){
   const g=G,me=g.P[0],c=g.call,n=g.n,fm=c&&c.fol.some(f=>f.p===me),ok=OKP.includes(g.phase),B=bgBox(),W=document.documentElement.clientWidth;
@@ -576,9 +590,19 @@ function render(){
   $('mym').innerHTML=me.k.slice(-4).map(x=>'<div class="mc2'+(red(x)?' r':'')+'">'+R[x.r]+S[x.s]+'</div>').join('');
   $('opps').innerHTML=g.P.filter(p=>!p.me).map(p=>{
     const [ix,iy]=SEATS[g.seats[p.i-1]],x=B.ox+B.s*ix,y=B.oy+B.s*iy;
-    const cv=g.dealing?(p.vis||0):p.h.length,fan='<div class="fan">'+Array.from({length:cv},(_,j)=>'<i style="transform:rotate('+((j-(cv-1)/2)*10)+'deg)"></i>').join('')+'</div>';
-    return '<div id="op'+p.i+'" class="op'+(n>6?' sm':'')+(x<W*.48?' rv':'')+(x>W*.52?' rr':'')+(p.i===g.cur&&g.phase!=='call'&&g.phase!=='res'&&g.phase!=='tapw'?' cur':'')+(c&&c.i===p.i?' cal':'')+(c&&c.fol.some(f=>f.p===p)?' fol':'')+'" style="left:'+x+'px;top:'+y+'px"><div class="pa"><div class="av">'+avatar(p.av)+'</div><div class="np">'+p.nm+' <small>Niv '+p.lvl+'</small></div><div class="kg">'+(p.k.length?'💩'+p.k.length+' · ':'')+kil(p)+' kg</div></div>'+fan+'</div>';
+    const rg=g.ring&&g.ring.i===p.i&&g.phase==='turn'?g.ring.t:-1;
+    const ring='<svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" class="rt"/>'+(rg>=0?'<circle cx="50" cy="50" r="46" class="rp" style="stroke:'+(rg<=5?'#ff3b30':'#2ee66b')+';stroke-dashoffset:'+(289*(1-rg/10)).toFixed(1)+'"/>':'')+'</svg>';
+    return '<div id="op'+p.i+'" class="op" style="left:'+x+'px;top:'+y+'px"><div class="avw2"><div class="av">'+avatar(p.av)+'</div>'+ring+'</div></div>';
   }).join('');
+  $('plates').innerHTML=g.P.filter(p=>!p.me).map(p=>{
+    const [ix,iy]=SEATS[g.seats[p.i-1]];
+    return '<div class="pt'+(c&&c.i===p.i?' cal':'')+(c&&c.fol.some(f=>f.p===p)?' fol':'')+'" style="left:'+(B.ox+B.s*ix)+'px;top:'+(B.oy+B.s*iy+42)+'px"><b>'+p.nm+'</b> <small>Niv '+p.lvl+'</small><span class="kk">'+(p.k.length?'💩'+p.k.length+' · ':'')+kil(p)+' kg</span></div>';
+  }).join('');
+  $('fans').innerHTML=g.P.filter(p=>!p.me).map(p=>{
+    const [,,fx,fy]=SEATS[g.seats[p.i-1]],cv=g.dealing?(p.vis||0):p.h.length;
+    return '<div id="fan'+p.i+'" class="tf" style="left:'+(B.ox+B.s*fx)+'px;top:'+(B.oy+B.s*fy)+'px">'+Array.from({length:cv},(_,j)=>'<i style="transform:rotate('+((j-(cv-1)/2)*12)+'deg)"></i>').join('')+'</div>';
+  }).join('');
+  if(!(g.phase==='turn'&&g.ring&&g.ring.i===0))$('hring').style.display='none';
   me.h.sort(g.sort==='r'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r);
   const L=me.h.length;
   $('hand').className=g.cur===0&&g.phase==='turn'?'hot':'';
@@ -648,13 +672,13 @@ function flush(p){
 }
 function flushBtn(){if(!G||!OKP.includes(G.phase))return;au();flush(G.P[0])}
 // ---- chrono de 5 secondes pour jouer
-function showTm(t){
-  const d=$('cdisc'),n=$('cdn');d.style.display='block';n.style.display='block';n.textContent=t;
-  if(t>=10){d.style.transition='none';d.style.transform='scale(1)';d.offsetWidth;d.style.transition='transform .9s linear, background .2s'}
-  else d.style.transform='scale('+(t/10)+')';
-  d.style.background=t<=5?'rgba(214,58,47,.6)':'rgba(46,158,91,.55)';
+function setRing(i,t){
+  G.ring={i,t};
+  if(i===0){const r=$('hring'),p=$('hrp');r.style.display='block';p.style.strokeDashoffset=(289*(1-t/10)).toFixed(1);p.style.stroke=t<=5?'#ff3b30':'#2ee66b'}
+  else{$('hring').style.display='none';render()}
 }
-function hideTm(){$('cdisc').style.display='none';$('cdn').style.display='none'}
+function clearRing(){if(G)G.ring=null;$('hring').style.display='none'}
+const showTm=t=>setRing(0,t),hideTm=clearRing;
 function startTimer(){
   const tk=G.tk=(G.tk||0)+1;showTm(10);
   for(let s=1;s<=10;s++)later(()=>{
