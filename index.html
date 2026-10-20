@@ -17,51 +17,54 @@ button:disabled{opacity:.4;cursor:default}
 #gh>b{font-size:14px;color:var(--gold);white-space:nowrap}
 #gh .pf{flex:1;max-width:250px;margin-left:auto}
 #room{position:relative;flex:1;min-height:0;margin:2px 6px}
+.pl{position:fixed;transform:translate(-50%,-50%);z-index:1;display:flex;flex-direction:column-reverse;align-items:center;gap:13px;font-size:0}
+.stk{position:relative;width:44px;height:62px}
+.stk i{position:absolute;inset:0;border-radius:7px;background:var(--back);border:2px solid var(--card)}
+.stk i:nth-child(1){transform:translate(-4px,-3px) rotate(-5deg)}.stk i:nth-child(2){transform:translate(3px,-1px) rotate(4deg)}
+.stk b{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);background:#000b;border:1px solid var(--gold);border-radius:10px;padding:0 8px;font-size:12px;white-space:nowrap}
+.stk b::before{content:"💩 "}
+.stk.ok{animation:blinkstk .45s infinite alternate}
+#tas{pointer-events:auto;cursor:pointer}
+#mc{position:fixed;transform:translate(-50%,-50%);z-index:2;width:156px;display:flex;flex-direction:column;align-items:center;gap:5px}
+#lc{position:fixed;transform:translate(-50%,-50%);z-index:2;width:150px;display:flex;flex-direction:column;align-items:center;gap:6px}
+#msg{font-size:12px;line-height:1.3;text-align:center;background:#000b;border-radius:10px;padding:3px 8px}
+#msg:empty{display:none}
+#gv{background:var(--gold);color:#222;border:0;border-radius:10px;padding:6px 12px;font-weight:800;font-size:13px;box-shadow:0 3px 0 #a97a10}
+#opps{position:fixed;inset:0;pointer-events:none}
 
-/* --- STYLE DU CONTOUR JOUEUR / ANNEAU & TIMER --- */
-.player-avatar-container {
+/* --- AJOUTS : ANNEAU JOUEUR & TIMER 10S & BOUTON FEINTE 15S --- */
+
+.player-avatar-wrapper {
   position: relative;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
+  width: 86px;
+  height: 86px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Image de l'anneau (rend le blanc de l'image transparent) */
-.player-ring {
+/* Anneau décoratif (rend le fond blanc invisible grâce à multiply) */
+.player-ring-img {
   position: absolute;
-  inset: -6px; /* Ajuste la taille relative du cadre autour de l'avatar */
+  inset: -6px;
   background: url('19952.jpg') center/cover no-repeat;
-  mix-blend-mode: multiply; /* Rend le fond blanc de l'image totalement transparent */
+  mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 3;
 }
 
-/* Avatar/Photo du joueur à l'intérieur */
-.player-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-  z-index: 1;
-}
-
-/* Jauge circulaire de décompte de 10 secondes */
-.turn-timer-overlay {
+/* Jauge circulaire du décompte de 10 secondes */
+.turn-timer-ring {
   position: absolute;
   inset: 4px;
   border-radius: 50%;
   z-index: 2;
   pointer-events: none;
-  /* Masque en cercle pour l'effet d'horloge */
   background: conic-gradient(var(--timer-color, rgba(24, 128, 73, 0.4)) calc(var(--progress, 1) * 360deg), transparent 0deg);
   transition: background-color 0.3s ease;
 }
 
-/* Animation de 10 secondes */
-.turn-timer-active {
+.turn-timer-ring.active {
   animation: timer10s 10s linear forwards, timerColorSwitch 10s step-end forwards;
 }
 
@@ -70,14 +73,13 @@ button:disabled{opacity:.4;cursor:default}
   to { --progress: 0; }
 }
 
-/* Changement de couleur : Vert transparent -> Rouge transparent à 3 secondes de la fin (soit à 70% de 10s) */
 @keyframes timerColorSwitch {
-  0% { --timer-color: rgba(24, 128, 73, 0.4); } /* Vert transparent */
-  70% { --timer-color: rgba(214, 58, 47, 0.6); } /* Rouge transparent pour les 3 dernières secondes */
-  100% { --timer-color: rgba(214, 58, 47, 0.6); }
+  0% { --timer-color: rgba(24, 128, 73, 0.4); }   /* Vert transparent (jusqu'à 7s) */
+  70% { --timer-color: rgba(214, 58, 47, 0.55); } /* Rouge transparent (à partir de 3s restantes) */
+  100% { --timer-color: rgba(214, 58, 47, 0.55); }
 }
 
-/* Bouton Feinte */
+/* Bouton feinte : 15 secondes avec rouge transparent */
 .btn-feinte {
   position: relative;
   overflow: hidden;
@@ -85,6 +87,7 @@ button:disabled{opacity:.4;cursor:default}
   border: 1px solid rgba(255, 255, 255, 0.4);
   color: #fff;
 }
+
 .btn-feinte.cooldown::after {
   content: "";
   position: absolute;
@@ -93,6 +96,7 @@ button:disabled{opacity:.4;cursor:default}
   pointer-events: none;
   animation: feinteCd 15s linear forwards;
 }
+
 @keyframes feinteCd {
   from { width: 100%; }
   to { width: 0%; }
@@ -101,39 +105,23 @@ button:disabled{opacity:.4;cursor:default}
 </head>
 <body>
 
-  <!-- EXEMPLE D'UTILISATION POUR UN JOUEUR -->
-  <div class="player-avatar-container">
-    <!-- Image de l'anneau -->
-    <div class="player-ring"></div>
-    
-    <!-- Superposition de décompte transparent (Vert puis Rouge à 3s) -->
-    <div class="turn-timer-overlay turn-timer-active" id="playerTimer"></div>
-    
-    <!-- Photo/Avatar du joueur -->
-    <img src="avatar-placeholder.png" alt="Joueur" class="player-avatar">
-  </div>
+  <!-- Structure et script d'origine de votre application -->
 
-</body>
 <script>
-  // Inscription de la propriété CSS personnalisée pour l'animation fluide de la jauge
+  // Enregistrement de la propriété CSS pour l'animation fluide de la jauge circulaire
   if (window.CSS && CSS.registerProperty) {
-    CSS.registerProperty({
-      name: '--progress',
-      syntax: '<number>',
-      inherits: false,
-      initialValue: 1
-    });
+    try {
+      CSS.registerProperty({
+        name: '--progress',
+        syntax: '<number>',
+        inherits: false,
+        initialValue: 1
+      });
+    } catch(e) {}
   }
 
-  // Fonction pour relancer le timer de 10s sur un joueur
-  function startPlayerTimer(elementId) {
-    const timerEl = document.getElementById(elementId);
-    if (!timerEl) return;
-    
-    timerEl.classList.remove('turn-timer-active');
-    void timerEl.offsetWidth; // Reclic / retrigger reflow CSS
-    timerEl.classList.add('turn-timer-active');
-  }
+  const FEINTE_COOLDOWN = 15; // Cooldown feinte à 15 secondes
 </script>
+</body>
 </html>
 
