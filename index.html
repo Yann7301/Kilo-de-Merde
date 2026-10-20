@@ -191,7 +191,7 @@ button:disabled{opacity:.4;cursor:default}
   position: absolute;
   inset: -10px;
   background: url('19952.jpg') center/cover no-repeat;
-  mix-blend-mode: multiply; /* Rend le fond blanc de l'image complètement transparent */
+  mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 3;
 }
@@ -494,7 +494,7 @@ function dealAnim(){
 function turn(){
   G.phase='turn';G.call=null;G.sel=null;G.dealing=false;$('stage').innerHTML='';
   const p=G.P[G.cur];render();saveGame();
-  if(p.me){msg(four(p)?'🎉 Tu as un carré ! TAPE ! 🤲':'À toi ! Touche une carte, puis touche-la encore pour la donner à '+G.P[nxt(G.cur)].nm+' 👇');if(four(p))bipLoop();startTimer()}
+  if(p.me){msg(four(p)?'🎉 Tu as un carré ! TAPE ! 🖐️':'À toi ! Touche une carte, puis touche-la encore pour la donner à '+G.P[nxt(G.cur)].nm+' 👇');if(four(p))bipLoop();startTimer()}
   else{clearRing();msg(p.nm+' choisit une carte…');const T=Math.round(rnd(2000,8000));setRing(p.i,10);for(let s=1;s*1000<T;s++)later(()=>{if(G.phase==='turn'&&G.cur===p.i)setRing(p.i,10-s)},s*1000);later(aiTurn,T)}
 }
 function score(r){const a={},b={};r.forEach(x=>{a[x.r]=(a[x.r]||0)+1;b[x.s]=(b[x.s]||0)+1});const va=Object.values(a),vb=Object.values(b);return Math.max(...va,...vb)*100+va.reduce((s,v)=>s+v*v,0)+vb.reduce((s,v)=>s+v*v,0)}
@@ -528,7 +528,7 @@ function tapWindow(next){
   if(!f.length)return next();
   G.phase='tapw';G.tn=next;
   const hm=f.some(p=>p.me),ai=f.filter(p=>!p.me);
-  if(hm){msg('🎉 Tu as un carré ! TAPE vite ! 🤲');bipLoop()}
+  if(hm){msg('🎉 Tu as un carré ! TAPE vite ! 🖐️');bipLoop()}
   render();
   ai.forEach(p=>later(()=>startCall(p.i,true,null),rnd(600,2000)));
   later(()=>{if(G.phase==='tapw')next()},ai.length?2600:3500);
@@ -548,18 +548,21 @@ function startCall(i,real,after){
   later(reveal,3000);
 }
 function tick(n){const e=$('cd');if(!e)return;e.textContent=n;e.style.animation='none';e.offsetWidth;e.style.animation='';sTick(n===1)}
+
+/* CORRECTION : Remplacement de la paire de mains 🤲 par une main unique 🖐️ */
 function follow(p,ms){
   const c=G.call;
   if(G.phase!=='call'||c.fol.some(f=>f.p===p))return;
   c.fol.push({p,ms});sCard();
-  $('fl').insertAdjacentHTML('beforeend','<div class="hd mini">🤲<b>'+nm(p)+'</b></div>');
+  $('fl').insertAdjacentHTML('beforeend','<div class="hd mini">🖐️<b>'+nm(p)+'</b></div>');
   render();
 }
+
 function reveal(){
   const c=G.call;G.phase='res';
   $('hm').classList.remove('main');$('hm').classList.add(c.real?'slam':'bye');
   document.querySelectorAll('#fl .hd').forEach(e=>e.classList.add('slam'));
-  $('cd').textContent=c.real?'🤲':'🎭';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
+  $('cd').textContent=c.real?'🖐️':'🎭';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
   if(c.real){sSlap();document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),350)}else{sWhoosh();setTimeout(sLaugh,450)}
   c.fol.forEach((f,k)=>setTimeout(sSlap,160*(k+1)));
   later(settle,1200);render();
@@ -597,7 +600,7 @@ function settle(){
   else los=fol.length?fol:[cl];
   const res=drawFor(los);
   const tag=p=>c.real?(fol.includes(p)?' (dernier)':' (pas suivi)'):'';
-  msg((c.real?'🤲 '+(cl.me?'Tu as tapé':cl.nm+' a tapé')+' en premier ! ':fol.length?'🎭 Feinte réussie ! ':"🎭 Personne n'a suivi ! ")+res.map(r=>r.txt+tag(r.p)).join(' · '));
+  msg((c.real?'🖐️ '+(cl.me?'Tu as tapé':cl.nm+' a tapé')+' en premier ! ':fol.length?'🎭 Feinte réussie ! ':"🎭 Personne n'a suivi ! ")+res.map(r=>r.txt+tag(r.p)).join(' · '));
   later(()=>{$('stage').innerHTML=''},1700);
   if(c.real){if(cl.me)gain(G.round>=6?100:10*G.round,G.round>=6?100:10*G.round,'Manche '+G.round+' gagnée');later(endRound,3400)}
   else{if(cl.me&&fol.length)gain(5,2,'Feinte réussie');later(c.after,2800)}
@@ -673,7 +676,7 @@ function render(){
   $('hand').innerHTML=g.dealing?'':me.h.map((x,k)=>{const d=k-(L-1)/2;return '<div class="c'+(red(x)?' r':'')+(x===g.sel?' sel':'')+(g.fresh?' dealin':'')+'" onclick="selCard('+k+')" style="transform:rotate('+d*5+'deg) translateY('+Math.abs(d)*3+'px);animation-delay:'+k*80+'ms">'+R[x.r]+'<span>'+S[x.s]+'</span></div>'}).join('');
   $('gv').style.display=g.cur===0&&g.phase==='turn'&&g.sel?'':'none';
   if(g.sel)$('gv').textContent='➡️ Donner '+R[g.sel.r]+S[g.sel.s]+' à '+g.P[nxt(g.cur)].nm;
-  $('tap').innerHTML=g.phase==='call'&&c.i!==0?(fm?'🤲<br>suivi':'🤲<br>SUIVRE'):'🤲<br>TAPER';
+  $('tap').innerHTML=g.phase==='call'&&c.i!==0?(fm?'🖐️<br>suivi':'🖐️<br>SUIVRE'):'🖐️<br>TAPER';
   $('tap').className=ok&&four(me)?'glow':'';
   $('tap').disabled=!((ok&&four(me))||(g.phase==='call'&&c.i!==0&&!fm));
   $('feint').disabled=!ok||performance.now()<(me.fcEnd||0);
