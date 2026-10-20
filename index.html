@@ -86,6 +86,9 @@ button:disabled{opacity:.4;cursor:default}
 #feint{background:#e08a1e;box-shadow:0 5px 0 #8a520b}
 #tap:active,#feint:active{transform:translateY(4px)}
 #tap.glow{animation:blink .45s infinite alternate}
+.fw{position:relative;width:80px;height:80px}
+#fcd{position:absolute;left:0;top:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none;border-radius:50%}
+#fcd circle{fill:none;stroke-width:50;stroke-dasharray:157.08;stroke-dashoffset:0}
 .ov{position:fixed;inset:0;background:#06241af2;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;text-align:center;z-index:6}
 .ov h2{margin:0;font-size:24px;color:var(--gold);text-shadow:0 2px 0 #000}
 .ov p{margin:0;max-width:560px;font-size:14px;line-height:1.5}
@@ -222,7 +225,7 @@ body.shake{animation:shake .3s}
 <div id="bot">
 <div id="me"><div id="mym"></div><div class="rowb"><button id="srt" onclick="sortBtn()">⇅ TRIER</button><button id="flush" onclick="flushBtn()"></button></div></div>
 <div id="hw"><div id="hand"></div><div class="mrow"><div class="avw"><div id="myav" class="av"></div><svg id="hring" class="ring" viewBox="0 0 100 100" style="display:none"><circle cx="50" cy="50" r="46" class="rt"/><circle id="hrp" cx="50" cy="50" r="46" class="rp"/></svg></div><div class="mt2"><span id="myn" class="np"></span><span id="mykg" class="kg"></span></div></div></div>
-<div id="btns"><button id="feint" onclick="feintBtn()">🎭<br>FEINTE</button><button id="tap" onclick="tapBtn()"></button></div>
+<div id="btns"><div class="fw"><button id="feint" onclick="feintBtn()">🎭<br>FEINTE</button><svg id="fcd" viewBox="0 0 100 100" style="display:none"><circle cx="50" cy="50" r="25"/></svg></div><button id="tap" onclick="tapBtn()"></button></div>
 </div>
 <div id="stage"></div><div id="toasts"></div><div id="bnr"></div>
 <div id="menu">
@@ -243,7 +246,7 @@ body.shake{animation:shake .3s}
 <h3>Les manches</h3><p>Avant de commencer, tout le monde vote pendant 5 secondes pour choisir entre 2 et 6 manches. Le choix le plus voté est retenu ; en cas d'égalité, tirage au sort entre les ex æquo.</p>
 <h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage ; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
 <h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démarre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
-<h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches.</p>
+<h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches. Après une feinte, il faut attendre 10 secondes avant d'en refaire une (le bouton se grise avec un décompte), pour tous les joueurs.</p>
 <h3>La chasse d'eau</h3><p>Si tu pioches un 7, tu le gardes en réserve (jusqu'aux 4 sept du jeu). Tu peux tirer la chasse d'eau quand tu veux : toutes tes cartes piochées, tes kilos de merde, repartent sous le tas avec le 7. Un bonus acheté au magasin ajoute une carte 7 spéciale (avec une toilette) en plus des 4 vrais 7, soit 5 au maximum.</p>
 <h3>Les kilos de merde</h3><p>Du 2 au 10, la valeur de la carte. Valet : 11 kilos, dame : 12, roi : 13, as : 100 kilos !</p>
 <h3>Fin de partie</h3><p>Après le nombre de manches choisi, chacun compte ses kilos. Le moins de kilos gagne ; celui qui en a le plus a le kilo de merde.</p>
@@ -379,7 +382,7 @@ function resetStats(){if(confirm('Réinitialiser les statistiques ?')){PF.games=
 function again(){$('over').style.display='none';$('menu').style.display='flex';showSolo();musicStart('menu')}
 // ===== partie =====
 function start(n){
-  ep++;au();SN.forEach(loadSmp);musicStart('jeu');
+  ep++;au();SN.forEach(loadSmp);musicStart('jeu');$('fcd').style.display='none';
   const ranks=ranksFor(n),tas=[];
   for(let r=0;r<13;r++)if(!ranks.includes(r))for(let s=0;s<4;s++)tas.push({r,s});
   shuf(tas);
@@ -457,7 +460,7 @@ function give1(i,k){
 }
 function afterGive(i){
   G.phase='wait';
-  const go=()=>{if(!G.P[i].me&&Math.random()<.1)startCall(i,false,adv);else adv()};
+  const go=()=>{if(!G.P[i].me&&Math.random()<.1&&performance.now()>=(G.P[i].fcEnd||0)){G.P[i].fcEnd=performance.now()+10000;startCall(i,false,adv)}else adv()};
   tapWindow(go);
 }
 function adv(){G.cur=nxt(G.cur);turn()}
@@ -573,8 +576,8 @@ function tapBtn(){
   if(four(me))return startCall(0,true,null);
 }
 function feintBtn(){
-  if(!G||!OKP.includes(G.phase))return;au();
-  const w=G.phase,c=G.cur,tn=G.tn;
+  if(!G||!OKP.includes(G.phase)||performance.now()<(G.P[0].fcEnd||0))return;au();
+  const w=G.phase,c=G.cur,tn=G.tn;startFeintCd();
   startCall(0,false,w==='wait'?()=>afterGive(c):w==='tapw'?()=>tapWindow(tn):turn);
 }
 // ===== affichage =====
@@ -614,7 +617,7 @@ function render(){
   $('tap').innerHTML=g.phase==='call'&&c.i!==0?(fm?'✋<br>suivi':'✋<br>SUIVRE'):'✋<br>TAPER';
   $('tap').className=ok&&four(me)?'glow':'';
   $('tap').disabled=!((ok&&four(me))||(g.phase==='call'&&c.i!==0&&!fm));
-  $('feint').disabled=!ok;
+  $('feint').disabled=!ok||performance.now()<(me.fcEnd||0);
 }
 for(let n=3;n<=6;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>start(n);document.querySelector('.nb').appendChild(b)}
 pfRender();
@@ -703,13 +706,22 @@ function resumeGame(){
   let s=null;try{s=JSON.parse(localStorage.getItem('kdm_game_v3'))}catch(e){}
   if(!s){showHome();return}
   ep++;au();goFull();musicStart('jeu');
-  G=Object.assign({},s,{phase:'deal',call:null,sel:null,votes:{},tk:0,bonus:true});
+  G=Object.assign({},s,{phase:'deal',call:null,sel:null,votes:{},tk:0,bonus:true});G.P.forEach(p=>{p.fcEnd=0});
   ['menu','over','rules','stats','shop','bag','gold','set','splash'].forEach(i=>{$(i).style.display='none'});
   $('myav').innerHTML=avatar(G.P[0].av);$('stage').innerHTML='';
   applyTheme();buildRings();render();banner('Partie reprise','Manche '+G.round+'/'+G.rounds,1500);
   later(turn,1700);
 }
 function enterApp(){$('splash').style.display='none';au();goFull();musicStart('menu');showHome()}
+// ---- feinte : 10 secondes d'attente entre deux feintes (même règle pour tous les joueurs)
+function startFeintCd(){
+  G.P[0].fcEnd=performance.now()+10000;
+  const c=$('fcd'),p=c.querySelector('circle');
+  c.style.display='block';p.style.transition='none';p.style.strokeDashoffset='0';p.style.stroke='rgba(46,230,107,.85)';p.getBoundingClientRect();
+  p.style.transition='stroke-dashoffset 10s linear';p.style.strokeDashoffset='157.08';
+  setTimeout(()=>{p.style.stroke='rgba(255,59,48,.9)'},5000);
+  setTimeout(()=>{c.style.display='none';if(G&&G.P)render()},10050);
+}
 // ---- boutique
 let shTab='sk';
 function openShop(){$('shop').style.display='flex';shop(shTab)}
