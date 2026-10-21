@@ -40,10 +40,10 @@ button:disabled{opacity:.4;cursor:default}
 .op.rv .fan{transform:translateX(34px)}.op.rr .fan{transform:translateX(-34px)}
 .pa{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 4px;border-radius:12px;border:2px solid transparent}
 .op.cur .pa{border-color:var(--gold);background:#0006}.op.cal .pa{background:#2e9e5bcc}.op.fol .pa{background:#d9822bcc}
-.av{border:2px solid var(--gold);border-radius:50%;background:#3a2410;overflow:hidden;line-height:0;position:relative;z-index:1}
+.av{border:2px solid var(--gold);border-radius:50%;background:#3a2410;overflow:hidden;line-height:0;position:relative;z-index:1;width:100%;height:100%}
 .av svg{width:100%;height:100%;display:block}
 
-/* Style pour recadrer l'image personnalisée et enlever le contour doré d'origine */
+/* Recadrage CSS pour masquer les cadres dorés d'origine des images */
 .av.custom-img {
   overflow: hidden;
   border-radius: 50%;
@@ -230,7 +230,7 @@ button:disabled{opacity:.4;cursor:default}
 #hand.hot .c::after{content:"";position:absolute;inset:-30%;background:linear-gradient(115deg,transparent 40%,#fffb 50%,transparent 60%);transform:translateX(-120%);animation:sheen 1.4s infinite}
 #hand.hot .c.sel{box-shadow:0 0 0 3px #5ec8ff,0 0 18px #5ec8ff}
 
-/* AJUSTEMENT DE LA BARRE DE CHARGEMENT ET DU TEXTE SUR L'ÉCRAN SPLASH */
+/* ÉCRAN SPLASH */
 #splash {
   position: fixed;
   inset: 0;
@@ -410,6 +410,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let G=null,ep=0,AC=null,mute=false,paused=false;
+
 // ---- sons
 function au(){if(!AC)try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}if(AC&&AC.state==='suspended')AC.resume();return AC}
 function tone(f,d,ty,v,f2,ff){const a=au();if(!a||mute)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime;let n=o;o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);if(ff){const b=a.createBiquadFilter();b.type='bandpass';b.frequency.value=ff;b.Q.value=2;o.connect(b);n=b;v*=3}g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(g).connect(a.destination);o.start();o.stop(t+d)}
@@ -522,6 +523,7 @@ function showStats(){
 }
 function resetStats(){if(confirm('Réinitialiser les statistiques ?')){PF.games=PF.wins=PF.losses=PF.streak=PF.best=0;Store.save(PF);showStats()}}
 function again(){$('over').style.display='none';$('menu').style.display='flex';showSolo();musicStart('menu')}
+
 // ===== partie =====
 function start(n){
   ep++;au();SN.forEach(loadSmp);musicStart('jeu');$('fcd').style.display='none';
@@ -529,7 +531,22 @@ function start(n){
   for(let r=0;r<13;r++)if(!ranks.includes(r))for(let s=0;s<4;s++)tas.push({r,s});
   shuf(tas);
   const names=['Toi',...shuf(NAMES.slice()).slice(0,n-1)];
-  G={n,ranks,tas,P:names.map((x,i)=>({nm:x,i,me:i===0,h:[],k:[],s:[],av:i?i:PF.eq.sk,gull:rnd(.5,.9),lvl:i?Math.max(1,PF.lvl+Math.round(rnd(-2,2))):PF.lvl})),seats:shuf([0,1,2,3,4]).slice(0,n-1).sort((a,b)=>a-b),rounds:0,round:0,cur:0,phase:'vote',call:null,sel:null,sort:'r',bonus:true};
+  
+  // Sélection aléatoire des personnages pour les bots (mélange des SVG d'origine et des nouveaux persos)
+  const availableSkins = SK.map((_, idx) => idx);
+  
+  G={n,ranks,tas,P:names.map((x,i)=>({
+    nm:x,
+    i,
+    me:i===0,
+    h:[],
+    k:[],
+    s:[],
+    av:i?availableSkins[Math.floor(Math.random()*availableSkins.length)]:PF.eq.sk,
+    gull:rnd(.5,.9),
+    lvl:i?Math.max(1,PF.lvl+Math.round(rnd(-2,2))):PF.lvl
+  })),seats:shuf([0,1,2,3,4]).slice(0,n-1).sort((a,b)=>a-b),rounds:0,round:0,cur:0,phase:'vote',call:null,sel:null,sort:'r',bonus:true};
+  
   renderMyAvatar();$('stage').innerHTML='';applyTheme();useBonus();
   ['menu','over','rules','stats','shop','bag','gold','set'].forEach(i=>{$(i).style.display='none'});
   clearSave();buildRings();render();startVote();
@@ -582,10 +599,7 @@ function turn(){
     clearRing();
     msg(p.nm+' choisit une carte…');
     
-    // 1. Durée d'animation FIXE à 10 secondes pour un décompte toujours régulier
     const TIMER_DURATION = 10000;
-    
-    // 2. Temps de réflexion de l'IA (entre 2s et 8s)
     const aiDecisionTime = Math.round(rnd(2000, 8000));
     
     const startTime = performance.now();
@@ -607,7 +621,6 @@ function turn(){
     }
     ringAnimId = requestAnimationFrame(updateAiTimer);
 
-    // L'IA prend sa décision au temps prévu, sans accélérer la jauge
     later(() => {
       if (G.phase === 'turn' && G.cur === p.i) {
         clearRing();
@@ -685,13 +698,17 @@ function reveal(){
   c.fol.forEach((f,k)=>setTimeout(sSlap,160*(k+1)));
   later(settle,1200);render();
 }
+
+// Génération dynamique des avatars selon leur identifiant/type
 function avatar(k){
-  if(k==='custom') {
-    return '<div class="av custom-img"><img src="19606.jpg" alt="Personnage"></div>';
+  const skin = SK[k];
+  if(skin && skin.img) {
+    return '<div class="av custom-img"><img src="'+skin.img+'" alt="'+skin.n+'"></div>';
   }
-  const acc=['<path d="M32 28l6-14 12 9 12-9 6 14z" fill="#f2b632" stroke="#a97a10" stroke-width="2"/>','<path d="M30 70q10-9 20 0q10-9 20 0q-10 7-20 3q-10 4-20-3z" fill="#2b1606"/>','<circle cx="38" cy="58" r="11" fill="none" stroke="#111" stroke-width="3"/><circle cx="62" cy="58" r="11" fill="none" stroke="#111" stroke-width="3"/>','<path d="M24 38q26-28 52 0z" fill="#d63a2f"/><rect x="58" y="36" width="30" height="7" rx="3" fill="#a02018"/>','<path d="M36 90l14-7 14 7-14 7z" fill="#2e6fd6"/>','<rect x="24" y="52" width="52" height="14" rx="6" fill="#111"/>','<path d="M30 36q20-30 40 0z" fill="#2e9e5b"/><circle cx="50" cy="14" r="5" fill="#fff"/>'][k%7];
-  const eyes=k%7===5?'':'<circle cx="38" cy="58" r="8" fill="#fff"/><circle cx="62" cy="58" r="8" fill="#fff"/><circle cx="40" cy="59" r="4" fill="#111"/><circle cx="60" cy="59" r="4" fill="#111"/>';
-  return '<svg viewBox="0 0 100 100"><path d="M50 8c9 6 7 14 0 18 13 2 23 10 25 20 10 4 15 12 15 22 0 14-18 22-40 22S10 82 10 68c0-10 5-18 15-22 2-10 12-18 25-20-7-4-9-12 0-18z" fill="'+['#8a5a2b','#9a6630','#7a4a22','#8f5d3a','#6f4320','#a06c3c'][k%6]+'" stroke="#4a2c0f" stroke-width="3"/>'+eyes+'<path d="M36 74q14 14 28 0z" fill="#fff" stroke="#4a2c0f" stroke-width="2"/>'+acc+'</svg>';
+  const idx = typeof k === 'number' ? k : 0;
+  const acc=['<path d="M32 28l6-14 12 9 12-9 6 14z" fill="#f2b632" stroke="#a97a10" stroke-width="2"/>','<path d="M30 70q10-9 20 0q10-9 20 0q-10 7-20 3q-10 4-20-3z" fill="#2b1606"/>','<circle cx="38" cy="58" r="11" fill="none" stroke="#111" stroke-width="3"/><circle cx="62" cy="58" r="11" fill="none" stroke="#111" stroke-width="3"/>','<path d="M24 38q26-28 52 0z" fill="#d63a2f"/><rect x="58" y="36" width="30" height="7" rx="3" fill="#a02018"/>','<path d="M36 90l14-7 14 7-14 7z" fill="#2e6fd6"/>','<rect x="24" y="52" width="52" height="14" rx="6" fill="#111"/>','<path d="M30 36q20-30 40 0z" fill="#2e9e5b"/><circle cx="50" cy="14" r="5" fill="#fff"/>'][idx%7];
+  const eyes=idx%7===5?'':'<circle cx="38" cy="58" r="8" fill="#fff"/><circle cx="62" cy="58" r="8" fill="#fff"/><circle cx="40" cy="59" r="4" fill="#111"/><circle cx="60" cy="59" r="4" fill="#111"/>';
+  return '<svg viewBox="0 0 100 100"><path d="M50 8c9 6 7 14 0 18 13 2 23 10 25 20 10 4 15 12 15 22 0 14-18 22-40 22S10 82 10 68c0-10 5-18 15-22 2-10 12-18 25-20-7-4-9-12 0-18z" fill="'+['#8a5a2b','#9a6630','#7a4a22','#8f5d3a','#6f4320','#a06c3c'][idx%6]+'" stroke="#4a2c0f" stroke-width="3"/>'+eyes+'<path d="M36 74q14 14 28 0z" fill="#fff" stroke="#4a2c0f" stroke-width="2"/>'+acc+'</svg>';
 }
 
 function renderMyAvatar() {
@@ -809,11 +826,12 @@ function render(){
 for(let n=3;n<=6;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>start(n);document.querySelector('.nb').appendChild(b)}
 pfRender();
 
-
-// ===== sauvegarde de partie, thème, boutique, sac, or+, paramètres, démarrage =====
+// ===== boutique, sac, or+, paramètres, démarrage =====
 const SN=['tick','slap','whoosh','plop','card','flush','lose','win','level','bah','rire','bip'];
 const sBip=()=>{if(playSmp('bip'))return;tone(1300,.09,'square',.13);setTimeout(()=>tone(1300,.09,'square',.13),150)};
 function bipLoop(){const k=G.bp=(G.bp||0)+1;(function f(){if(G.bp!==k||!OKP.includes(G.phase)||!four(G.P[0]))return;sBip();vib(60);later(f,950)})()}
+
+/* Liste étendue des personnages du magasin */
 const SK=[
   {n:'Roi',p:0},
   {n:'Moustachu',p:150},
@@ -822,8 +840,13 @@ const SK=[
   {n:'Nœud pap',p:300},
   {n:'Cool',p:400},
   {n:'Bonnet',p:500},
-  {n:'Garçon Doré',p:1000,custom:true}
+  {n:'Garçon Doré',p:1000,img:'19606.jpg'},
+  {n:'Fillette Violette',p:1000,img:'19607.jpg'},
+  {n:'Fille Bouclée',p:1000,img:'19608.jpg'},
+  {n:'Papy Rieur',p:1000,img:'19609.jpg'},
+  {n:'Mamie Grincheuse',p:1000,img:'19610.jpg'}
 ];
+
 const BK=[
   {n:'Classique',p:0,bg:'repeating-linear-gradient(45deg,#7a2e12,#7a2e12 4px,#9a431f 4px,#9a431f 8px)'},
   {n:'Bleu',p:150,bg:'repeating-linear-gradient(45deg,#1c3f8a,#1c3f8a 4px,#2d62c7 4px,#2d62c7 8px)'},
@@ -871,7 +894,7 @@ function musStep(T,i,t,d){
   if(i%4===0){const o=a.createOscillator(),g=a.createGain();o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);o.connect(g).connect(MG);o.start(t);o.stop(t+.16)}
   if(i%2===1){if(!NB){const n=Math.floor(a.sampleRate*.04),b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let k=0;k<n;k++)c[k]=Math.random()*2-1;NB=b}const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=NB;f.type='highpass';f.frequency.value=6000;g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);s.connect(f).connect(g).connect(MG);s.start(t)}
 }
-// ---- 7 chasse d'eau (réserve, utilisable à volonté)
+// ---- 7 chasse d'eau
 function flush(p){
   if(!p.s.length||!p.k.length)return false;
   const n=p.k.length;
@@ -883,7 +906,7 @@ function flush(p){
 }
 function flushBtn(){if(!G||!OKP.includes(G.phase))return;au();flush(G.P[0])}
 
-// ---- CHRONO CIRCULAIRE TRANSPARENT ET ULTRA-FLUIDE ----
+// ---- Chrono circulaire ----
 let ringAnimId = null;
 
 function ringEl(i){return $('rg'+i)}
@@ -911,7 +934,7 @@ const showTm = frac => setRing(0, frac, frac <= 0.3), hideTm = clearRing;
 
 function startTimer() {
   const tk = G.tk = (G.tk || 0) + 1;
-  const DURATION = 10000; // 10 secondes
+  const DURATION = 10000;
   const startTime = performance.now();
 
   if (ringAnimId) cancelAnimationFrame(ringAnimId);
@@ -954,7 +977,7 @@ function resumeGame(){
 }
 function enterApp(){$('splash').style.display='none';au();goFull();musicStart('menu');showHome()}
 
-// ---- feinte : 15 secondes d'attente entre deux feintes ----
+// ---- feinte ----
 function startFeintCd(){
   G.P[0].fcEnd=performance.now()+15000;
   const btn=$('feint');btn.classList.add('cooldown');
@@ -976,7 +999,7 @@ function shop(t){
     const id=t==='bo'?x.id:i;
     let pv;
     if(t==='sk'){
-      pv='<div class="av" style="width:52px;height:52px">'+avatar(x.custom?'custom':i)+'</div>';
+      pv='<div class="av" style="width:52px;height:52px">'+avatar(i)+'</div>';
     } else if(t==='bk'){
       pv='<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;background:'+x.bg+';background-size:cover;background-position:center"></div>';
     } else {
@@ -998,7 +1021,6 @@ function buy(t,id){
   Store.save(PF);pfRender();sLevel();shop(t);
 }
 function equip(t,i){PF.eq[t]=i;applyTheme();renderMyAvatar();Store.save(PF);shop(t)}
-function renderMyAvatar(){$('myav').innerHTML=avatar(SK[PF.eq.sk].custom?'custom':PF.eq.sk)}
 
 // ---- sac bonus ----
 function openBag(){$('bag').style.display='flex';bag()}
@@ -1045,7 +1067,7 @@ mute=!PF.set.sound;applyTheme();syncSnd();pfRender();renderMyAvatar();
 if(typeof addEventListener==='function')addEventListener('resize',()=>{if(G&&G.P)render()});
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
-  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg'];let n=0;
+  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg'];let n=0;
   const bar=document.querySelector('#ld i');
   loadMus('menu');loadMus('jeu');
   imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
