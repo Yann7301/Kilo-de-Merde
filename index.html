@@ -19,7 +19,7 @@ button:disabled{opacity:.4;cursor:default}
 #room{position:relative;flex:1;min-height:0;margin:2px 6px}
 .pl{position:fixed;transform:translate(-50%,-50%);z-index:1;display:flex;flex-direction:column-reverse;align-items:center;gap:13px;font-size:0}
 .stk{position:relative;width:44px;height:62px}
-.stk i{position:absolute;inset:0;border-radius:7px;background:var(--back);border:2px solid var(--card)}
+.stk i{position:absolute;inset:0;border-radius:7px;background:var(--back);background-size:cover;background-position:center;border:2px solid var(--card)}
 .stk i:nth-child(1){transform:translate(-4px,-3px) rotate(-5deg)}.stk i:nth-child(2){transform:translate(3px,-1px) rotate(4deg)}
 .stk b{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);background:#000b;border:1px solid var(--gold);border-radius:10px;padding:0 8px;font-size:12px;white-space:nowrap}
 .stk b::before{content:"💩 "}
@@ -48,7 +48,7 @@ button:disabled{opacity:.4;cursor:default}
 .np small{color:var(--gold);font-weight:600}
 .kg{color:var(--gold)}
 .fan{position:relative;width:60px;height:32px;margin-top:3px}
-.fan i{position:absolute;left:21px;top:2px;width:18px;height:26px;border-radius:3px;border:1px solid #fff;background:var(--back);transform-origin:50% 130%}
+.fan i{position:absolute;left:21px;top:2px;width:18px;height:26px;border-radius:3px;border:1px solid #fff;background:var(--back);background-size:cover;background-position:center;transform-origin:50% 130%}
 .op.sm .av{width:30px;height:30px}.op.sm .np,.op.sm .kg{font-size:8px;padding:0 3px}
 #bot{display:flex;align-items:flex-end;gap:8px;flex:0 0 auto;height:148px;padding:2px max(8px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:linear-gradient(#0000,#000c 50%);position:relative;z-index:3}
 #me{flex:0 0 186px;display:flex;flex-direction:column;gap:3px;align-self:flex-end}
@@ -130,7 +130,7 @@ button:disabled{opacity:.4;cursor:default}
 .c{position:relative;width:48px;height:68px;background:var(--card);color:#222;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:20px;line-height:1.05;box-shadow:0 2px 5px #0009;margin:0 -3px;transition:transform .15s}
 .c.r{color:var(--red)}
 .c.sel{transform:translateY(-18px) rotate(0) !important;box-shadow:0 0 0 3px #5ec8ff,0 5px 10px #000a}
-.c.back{background:var(--back);border:2px solid var(--card)}
+.c.back{background:var(--back);background-size:cover;background-position:center;border:2px solid var(--card)}
 #btns{display:flex;gap:8px;flex:0 0 auto;align-self:flex-end;margin-bottom:6px}
 #tap,#feint{width:80px;height:80px;border-radius:50%;border:4px solid #fff;font-size:14px;font-weight:800;color:#fff;padding:0}
 #tap{background:var(--red);box-shadow:0 5px 0 #8e1f17}
@@ -239,7 +239,7 @@ button:disabled{opacity:.4;cursor:default}
 .ring.ai{width:106px;height:106px}
 #fans{position:fixed;inset:0;pointer-events:none}
 .tf{position:absolute;width:0;height:0}
-.tf i{position:absolute;left:-14px;top:-20px;width:28px;height:40px;border-radius:4px;border:1px solid #fff;background:var(--back);transform-origin:50% 130%;box-shadow:0 2px 4px #000a}
+.tf i{position:absolute;left:-14px;top:-20px;width:28px;height:40px;border-radius:4px;border:1px solid #fff;background:var(--back);background-size:cover;background-position:center;transform-origin:50% 130%;box-shadow:0 2px 4px #000a}
 @keyframes pulse{to{box-shadow:0 0 0 3px #fff,0 0 22px 4px var(--gold)}}
 @keyframes sheen{to{transform:translateX(120%)}}
 
@@ -736,12 +736,23 @@ const SN=['tick','slap','whoosh','plop','card','flush','lose','win','level','bah
 const sBip=()=>{if(playSmp('bip'))return;tone(1300,.09,'square',.13);setTimeout(()=>tone(1300,.09,'square',.13),150)};
 function bipLoop(){const k=G.bp=(G.bp||0)+1;(function f(){if(G.bp!==k||!OKP.includes(G.phase)||!four(G.P[0]))return;sBip();vib(60);later(f,950)})()}
 const SK=[{n:'Roi',p:0},{n:'Moustachu',p:150},{n:'Intello',p:200},{n:'Casquette',p:250},{n:'Nœud pap',p:300},{n:'Cool',p:400},{n:'Bonnet',p:500}];
-const BK=[{n:'Classique',p:0,bg:'repeating-linear-gradient(45deg,#7a2e12,#7a2e12 4px,#9a431f 4px,#9a431f 8px)'},{n:'Bleu',p:150,bg:'repeating-linear-gradient(45deg,#1c3f8a,#1c3f8a 4px,#2d62c7 4px,#2d62c7 8px)'},{n:'Vert',p:150,bg:'repeating-linear-gradient(45deg,#14532d,#14532d 4px,#2f9e44 4px,#2f9e44 8px)'},{n:'Violet',p:250,bg:'repeating-linear-gradient(45deg,#4a1d96,#4a1d96 4px,#7c3aed 4px,#7c3aed 8px)'},{n:'Or',p:500,bg:'repeating-linear-gradient(45deg,#8a5d00,#8a5d00 4px,#f6b82e 4px,#f6b82e 8px)'}];
+const BK=[
+  {n:'Classique',p:0,bg:'repeating-linear-gradient(45deg,#7a2e12,#7a2e12 4px,#9a431f 4px,#9a431f 8px)'},
+  {n:'Bleu',p:150,bg:'repeating-linear-gradient(45deg,#1c3f8a,#1c3f8a 4px,#2d62c7 4px,#2d62c7 8px)'},
+  {n:'Vert',p:150,bg:'repeating-linear-gradient(45deg,#14532d,#14532d 4px,#2f9e44 4px,#2f9e44 8px)'},
+  {n:'Violet',p:250,bg:'repeating-linear-gradient(45deg,#4a1d96,#4a1d96 4px,#7c3aed 4px,#7c3aed 8px)'},
+  {n:'Or',p:500,bg:'repeating-linear-gradient(45deg,#8a5d00,#8a5d00 4px,#f6b82e 4px,#f6b82e 8px)'},
+  {n:'Caca Célèbre',p:1000,bg:'url(19908.jpg)'}
+];
 const BO=[{id:'chasse',n:"7 Chasse d'eau",e:'🚽',p:100,d:'1 carte 7 en plus (max 5)'},{id:'x1',n:'Bonus mystère',e:'🎁',p:0,off:1,d:'Bientôt'},{id:'x2',n:'Bonus mystère',e:'🎁',p:0,off:1,d:'Bientôt'}];
 const ADN=5,ADG=20;
 const today=()=>new Date().toISOString().slice(0,10);
 const closeOv=i=>{$(i).style.display='none'};
-function applyTheme(){document.documentElement.style.setProperty('--back',BK[PF.eq.bk].bg)}
+function applyTheme(){
+  const item = BK[PF.eq.bk];
+  const val = item.bg.startsWith('url') ? item.bg : item.bg;
+  document.documentElement.style.setProperty('--back', val);
+}
 function syncSnd(){document.querySelectorAll('.sndb').forEach(b=>{b.textContent=(PF.set.sound||PF.set.music)?'🔊':'🔇'})}
 const vib=ms=>{try{if(PF.set.vib&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 const TRK={
@@ -875,7 +886,7 @@ function shop(t){
   const L=t==='sk'?SK:t==='bk'?BK:BO;
   $('shgrid').innerHTML=L.map((x,i)=>{
     const id=t==='bo'?x.id:i;
-    const pv=t==='sk'?'<div class="av" style="width:52px;height:52px">'+avatar(i)+'</div>':t==='bk'?'<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;background:'+x.bg+'"></div>':(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':'<div style="font-size:38px">'+x.e+'</div>');
+    const pv=t==='sk'?'<div class="av" style="width:52px;height:52px">'+avatar(i)+'</div>':t==='bk'?'<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;background:'+x.bg+';background-size:cover;background-position:center"></div>':(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':'<div style="font-size:38px">'+x.e+'</div>');
     let act;
     if(t==='bo')act=x.off?'<button disabled>Bientôt</button>':'<button onclick="buy(\'bo\',\''+id+'\')">🪙 '+x.p+'</button><small>En sac : '+(PF.bag[id]||0)+'</small>';
     else if(PF.eq[t]===i)act='<button disabled>Équipé ✓</button>';
@@ -944,7 +955,7 @@ if(typeof addEventListener==='function')addEventListener('resize',()=>{layoutSpl
 layoutSplash();
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
-  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg'];let n=0;
+  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg'];let n=0;
   const bar=document.querySelector('#ld i');
   loadMus('menu');loadMus('jeu');
   imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
@@ -953,7 +964,7 @@ if(document.addEventListener){document.addEventListener('gesturestart',e=>e.prev
     const sv=hasSave();
     $('lt').textContent=sv?'Une partie est en cours…':"Touche l'écran pour jouer";$('lt').className='blink';
     $('sb').style.display=sv?'flex':'none';
-    if(!sv)$('splash').onclick=enterApp;
+    if(!sv)$('splash'].onclick=enterApp; // Corrigé ci-dessous
   },1900);
 })();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
