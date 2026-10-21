@@ -654,7 +654,7 @@ function feintBtn(){
   startCall(0,false,w==='wait'?()=>afterGive(c):w==='tapw'?()=>tapWindow(tn):turn);
 }
 // ===== affichage =====
-const SEATS=[[2173,628,2031,626],[1918,262,1816,393],[1363,185,1365,368],[765,255,885,404],[503,578,746,638]];
+const SEATS=[[2173,628,1950,666],[1918,262,1798,425],[1363,185,1365,368],[765,255,885,404],[503,578,746,638]];
 function bgBox(){const W=document.documentElement.clientWidth,H=document.documentElement.clientHeight,s=Math.max(W/2700,H/1152);return {s,ox:(W-2700*s)/2,oy:(H-1152*s)*.5}}
 function render(){
   const g=G,me=g.P[0],c=g.call,n=g.n,fm=c&&c.fol.some(f=>f.p===me),ok=OKP.includes(g.phase),B=bgBox(),W=document.documentElement.clientWidth;
@@ -912,4 +912,3 @@ if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator
 
 </script>
 </body></html>
-
