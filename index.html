@@ -40,6 +40,7 @@ button:disabled{opacity:.4;cursor:default}
 .op.rv .fan{transform:translateX(34px)}.op.rr .fan{transform:translateX(-34px)}
 .pa{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 4px;border-radius:12px;border:2px solid transparent}
 .op.cur .pa{border-color:var(--gold);background:#0006}.op.cal .pa{background:#2e9e5bcc}.op.fol .pa{background:#d9822bcc}
+
 .av{border:2px solid var(--gold);border-radius:50%;background:#3a2410;overflow:hidden;line-height:0;position:relative;z-index:1;width:100%;height:100%}
 .av svg{width:100%;height:100%;display:block}
 
@@ -532,7 +533,7 @@ function start(n){
   shuf(tas);
   const names=['Toi',...shuf(NAMES.slice()).slice(0,n-1)];
   
-  // Sélection aléatoire des personnages pour les bots (mélange des SVG d'origine et des nouveaux persos)
+  // Attribution aléatoire de skins aux bots (mélange complet SVG et images personnalisées)
   const availableSkins = SK.map((_, idx) => idx);
   
   G={n,ranks,tas,P:names.map((x,i)=>({
@@ -699,11 +700,11 @@ function reveal(){
   later(settle,1200);render();
 }
 
-// Génération dynamique des avatars selon leur identifiant/type
+// Fonction de génération d'avatar unifiée et robuste (SVG ou JPEG recadré)
 function avatar(k){
   const skin = SK[k];
   if(skin && skin.img) {
-    return '<div class="av custom-img"><img src="'+skin.img+'" alt="'+skin.n+'"></div>';
+    return '<div class="av custom-img" style="width:100%;height:100%"><img src="'+skin.img+'" alt="'+skin.n+'"></div>';
   }
   const idx = typeof k === 'number' ? k : 0;
   const acc=['<path d="M32 28l6-14 12 9 12-9 6 14z" fill="#f2b632" stroke="#a97a10" stroke-width="2"/>','<path d="M30 70q10-9 20 0q10-9 20 0q-10 7-20 3q-10 4-20-3z" fill="#2b1606"/>','<circle cx="38" cy="58" r="11" fill="none" stroke="#111" stroke-width="3"/><circle cx="62" cy="58" r="11" fill="none" stroke="#111" stroke-width="3"/>','<path d="M24 38q26-28 52 0z" fill="#d63a2f"/><rect x="58" y="36" width="30" height="7" rx="3" fill="#a02018"/>','<path d="M36 90l14-7 14 7-14 7z" fill="#2e6fd6"/>','<rect x="24" y="52" width="52" height="14" rx="6" fill="#111"/>','<path d="M30 36q20-30 40 0z" fill="#2e9e5b"/><circle cx="50" cy="14" r="5" fill="#fff"/>'][idx%7];
@@ -831,7 +832,7 @@ const SN=['tick','slap','whoosh','plop','card','flush','lose','win','level','bah
 const sBip=()=>{if(playSmp('bip'))return;tone(1300,.09,'square',.13);setTimeout(()=>tone(1300,.09,'square',.13),150)};
 function bipLoop(){const k=G.bp=(G.bp||0)+1;(function f(){if(G.bp!==k||!OKP.includes(G.phase)||!four(G.P[0]))return;sBip();vib(60);later(f,950)})()}
 
-/* Liste étendue des personnages du magasin */
+/* Liste complète des personnages du magasin (SVG + JPEGs personnalisés) */
 const SK=[
   {n:'Roi',p:0},
   {n:'Moustachu',p:150},
@@ -999,7 +1000,7 @@ function shop(t){
     const id=t==='bo'?x.id:i;
     let pv;
     if(t==='sk'){
-      pv='<div class="av" style="width:52px;height:52px">'+avatar(i)+'</div>';
+      pv='<div style="width:52px;height:52px">'+avatar(i)+'</div>';
     } else if(t==='bk'){
       pv='<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;background:'+x.bg+';background-size:cover;background-position:center"></div>';
     } else {
