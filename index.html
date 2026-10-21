@@ -315,7 +315,7 @@ body.shake{animation:shake .3s}
 <p>Les cartes restantes forment le <b>tas de merde</b>, au milieu de la table. Les cartes en trop sont écartées pour la manche.</p>
 <h3>Les manches</h3><p>Avant de commencer, tout le monde vote pendant 5 secondes pour choisir entre 2 et 6 manches. Le choix le plus voté est retenu ; en cas d'égalité, tirage au sort entre les ex æquo.</p>
 <h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage ; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
-<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démarre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
+<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
 <h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches. Après une feinte, il faut attendre 15 secondes avant d'en refaire une (le bouton se grise avec un décompte), pour tous les joueurs.</p>
 <h3>La chasse d'eau</h3><p>Si tu pioches un 7, tu le gardes en réserve (jusqu'aux 4 sept du jeu). Tu peux tirer la chasse d'eau quand tu veux : toutes tes cartes piochées, tes kilos de merde, repartent sous le tas avec le 7. Un bonus acheté au magasin ajoute une carte 7 spéciale (avec une toilette) en plus des 4 vrais 7, soit 5 au maximum.</p>
 <h3>Les kilos de merde</h3><p>Du 2 au 10, la valeur de la carte. Valet : 11 kilos, dame : 12, roi : 13, as : 100 kilos !</p>
@@ -750,7 +750,7 @@ const today=()=>new Date().toISOString().slice(0,10);
 const closeOv=i=>{$(i).style.display='none'};
 function applyTheme(){
   const item = BK[PF.eq.bk];
-  const val = item.bg.startsWith('url') ? item.bg : item.bg;
+  const val = item.bg;
   document.documentElement.style.setProperty('--back', val);
 }
 function syncSnd(){document.querySelectorAll('.sndb').forEach(b=>{b.textContent=(PF.set.sound||PF.set.music)?'🔊':'🔇'})}
@@ -964,7 +964,7 @@ if(document.addEventListener){document.addEventListener('gesturestart',e=>e.prev
     const sv=hasSave();
     $('lt').textContent=sv?'Une partie est en cours…':"Touche l'écran pour jouer";$('lt').className='blink';
     $('sb').style.display=sv?'flex':'none';
-    if(!sv)$('splash'].onclick=enterApp; // Corrigé ci-dessous
+    if(!sv)$('splash').onclick=enterApp;
   },1900);
 })();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
