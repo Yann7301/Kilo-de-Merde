@@ -56,7 +56,6 @@ button:disabled{opacity:.4;cursor:default}
 #myav{width:58px;height:58px;flex:0 0 auto}
 .mrow{display:flex;align-items:center;gap:6px;margin-top:2px}
 
-/* FIXATION AVW / AVW2 ET DE L'ANNEAU VISUEL */
 .avw, .avw2 {
   position: relative;
   width: 58px;
@@ -82,7 +81,6 @@ button:disabled{opacity:.4;cursor:default}
   z-index: 3;
 }
 
-/* FIXATION ET STYLE DU DÉCOMPTE SVG (TRANSPARENT ET FLUIDE) */
 .ring {
   position: absolute;
   left: 50%;
@@ -105,8 +103,8 @@ button:disabled{opacity:.4;cursor:default}
   stroke-linecap: round;
   stroke-dasharray: 289;
   stroke-dashoffset: 0;
-  opacity: 0.65; /* Transparence de l'anneau de décompte */
-  transition: stroke 0.3s ease; /* Fluidité de changement de couleur */
+  opacity: 0.65;
+  transition: stroke 0.3s ease;
 }
 
 #cdisc{position:absolute;left:50%;top:50%;width:86px;height:86px;margin:-43px 0 0 -43px;border-radius:50%;pointer-events:none;z-index:2;display:none;transition:transform .9s linear,background .2s}
@@ -511,24 +509,39 @@ function turn(){
   else{
     clearRing();
     msg(p.nm+' choisit une carte…');
-    const DURATION=Math.round(rnd(2000,8000));
-    const startTime=performance.now();
-    if(ringAnimId) cancelAnimationFrame(ringAnimId);
     
+    // 1. Durée d'animation FIXE à 10 secondes pour un décompte toujours régulier
+    const TIMER_DURATION = 10000;
+    
+    // 2. Temps de réflexion de l'IA (entre 2s et 8s)
+    const aiDecisionTime = Math.round(rnd(2000, 8000));
+    
+    const startTime = performance.now();
+    if(ringAnimId) cancelAnimationFrame(ringAnimId);
+
     function updateAiTimer(now){
       if(G.phase!=='turn'||G.cur!==p.i)return;
-      const elapsed=now-startTime;
-      const remaining=Math.max(0,DURATION-elapsed);
-      const fraction=remaining/DURATION;
-      setRing(p.i,fraction,fraction<=0.3);
-      if(remaining>0){
-        ringAnimId=requestAnimationFrame(updateAiTimer);
-      }else{
+      const elapsed = now - startTime;
+      const remaining = Math.max(0, TIMER_DURATION - elapsed);
+      const fraction = remaining / TIMER_DURATION;
+
+      setRing(p.i, fraction, fraction <= 0.3);
+
+      if(remaining > 0){
+        ringAnimId = requestAnimationFrame(updateAiTimer);
+      } else {
+        clearRing();
+      }
+    }
+    ringAnimId = requestAnimationFrame(updateAiTimer);
+
+    // L'IA prend sa décision au temps prévu, sans accélérer la jauge
+    later(() => {
+      if (G.phase === 'turn' && G.cur === p.i) {
         clearRing();
         aiTurn();
       }
-    }
-    ringAnimId=requestAnimationFrame(updateAiTimer);
+    }, aiDecisionTime);
   }
 }
 function score(r){const a={},b={};r.forEach(x=>{a[x.r]=(a[x.r]||0)+1;b[x.s]=(b[x.s]||0)+1});const va=Object.values(a),vb=Object.values(b);return Math.max(...va,...vb)*100+va.reduce((s,v)=>s+v*v,0)+vb.reduce((s,v)=>s+v*v,0)}
@@ -771,7 +784,7 @@ function flush(p){
 }
 function flushBtn(){if(!G||!OKP.includes(G.phase))return;au();flush(G.P[0])}
 
-// ---- CHRONO CIRCULAIRE TRANSPARENT ET UTLRA-FLUIDE ----
+// ---- CHRONO CIRCULAIRE TRANSPARENT ET ULTRA-FLUIDE ----
 let ringAnimId = null;
 
 function ringEl(i){return $('rg'+i)}
