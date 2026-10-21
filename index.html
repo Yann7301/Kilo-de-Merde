@@ -56,7 +56,7 @@ button:disabled{opacity:.4;cursor:default}
 #myav{width:58px;height:58px;flex:0 0 auto}
 .mrow{display:flex;align-items:center;gap:6px;margin-top:2px}
 
-/* FIXATION AVW / AVW2 ET DE L'ANNEAU */
+/* FIXATION AVW / AVW2 ET DE L'ANNEAU VISUEL */
 .avw, .avw2 {
   position: relative;
   width: 58px;
@@ -82,7 +82,7 @@ button:disabled{opacity:.4;cursor:default}
   z-index: 3;
 }
 
-/* FIXATION ET STYLE DU DÉCOMPTE SVG (JOUEUR ET BOTS) */
+/* FIXATION ET STYLE DU DÉCOMPTE SVG (TRANSPARENT ET FLUIDE) */
 .ring {
   position: absolute;
   left: 50%;
@@ -105,7 +105,8 @@ button:disabled{opacity:.4;cursor:default}
   stroke-linecap: round;
   stroke-dasharray: 289;
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.2s linear, stroke 0.3s ease;
+  opacity: 0.65; /* Transparence de l'anneau de décompte */
+  transition: stroke 0.3s ease; /* Fluidité de changement de couleur */
 }
 
 #cdisc{position:absolute;left:50%;top:50%;width:86px;height:86px;margin:-43px 0 0 -43px;border-radius:50%;pointer-events:none;z-index:2;display:none;transition:transform .9s linear,background .2s}
@@ -507,7 +508,28 @@ function turn(){
   G.phase='turn';G.call=null;G.sel=null;G.dealing=false;$('stage').innerHTML='';
   const p=G.P[G.cur];render();saveGame();
   if(p.me){msg(four(p)?'🎉 Tu as un carré ! TAPE ! 🖐️':'À toi ! Touche une carte, puis touche-la encore pour la donner à '+G.P[nxt(G.cur)].nm+' 👇');if(four(p))bipLoop();startTimer()}
-  else{clearRing();msg(p.nm+' choisit une carte…');const T=Math.round(rnd(2000,8000));setRing(p.i,10);for(let s=1;s*1000<T;s++)later(()=>{if(G.phase==='turn'&&G.cur===p.i)setRing(p.i,10-s)},s*1000);later(aiTurn,T)}
+  else{
+    clearRing();
+    msg(p.nm+' choisit une carte…');
+    const DURATION=Math.round(rnd(2000,8000));
+    const startTime=performance.now();
+    if(ringAnimId) cancelAnimationFrame(ringAnimId);
+    
+    function updateAiTimer(now){
+      if(G.phase!=='turn'||G.cur!==p.i)return;
+      const elapsed=now-startTime;
+      const remaining=Math.max(0,DURATION-elapsed);
+      const fraction=remaining/DURATION;
+      setRing(p.i,fraction,fraction<=0.3);
+      if(remaining>0){
+        ringAnimId=requestAnimationFrame(updateAiTimer);
+      }else{
+        clearRing();
+        aiTurn();
+      }
+    }
+    ringAnimId=requestAnimationFrame(updateAiTimer);
+  }
 }
 function score(r){const a={},b={};r.forEach(x=>{a[x.r]=(a[x.r]||0)+1;b[x.s]=(b[x.s]||0)+1});const va=Object.values(a),vb=Object.values(b);return Math.max(...va,...vb)*100+va.reduce((s,v)=>s+v*v,0)+vb.reduce((s,v)=>s+v*v,0)}
 function aiTurn(){
@@ -749,43 +771,56 @@ function flush(p){
 }
 function flushBtn(){if(!G||!OKP.includes(G.phase))return;au();flush(G.P[0])}
 
-// ---- CHRONO CIRCULAIRE 10 SECONDES UNIFIÉ ----
+// ---- CHRONO CIRCULAIRE TRANSPARENT ET UTLRA-FLUIDE ----
+let ringAnimId = null;
+
 function ringEl(i){return $('rg'+i)}
 function buildRings(){$('rings').innerHTML=G.P.filter(p=>!p.me).map(p=>'<svg id="rg'+p.i+'" class="ring ai" viewBox="0 0 100 100" style="display:none"><circle cx="50" cy="50" r="46" class="rt"/><circle cx="50" cy="50" r="46" class="rp"/></svg>').join('')}
 
-function setRing(i,t){
-  G.ring={i,t};
-  G.P.forEach(p=>{const e=ringEl(p.i);if(e&&p.i!==i)e.style.display='none'});
-  const e=ringEl(i);if(!e)return;
-  e.style.display='block';
-  const p=e.querySelector('.rp');
-  if(t>=10){
-    p.style.transition='none';
-    p.style.strokeDashoffset='0';
-    p.getBoundingClientRect();
-    p.style.transition='stroke-dashoffset 0.2s linear, stroke 0.3s ease';
-  } else {
-    p.style.strokeDashoffset=(289*(1-t/10)).toFixed(1);
+function setRing(i, progressFraction, isUrgent) {
+  G.ring = { i, progressFraction };
+  G.P.forEach(p => { const e = ringEl(p.i); if (e && p.i !== i) e.style.display = 'none'; });
+  const e = ringEl(i); if (!e) return;
+  e.style.display = 'block';
+  const p = e.querySelector('.rp');
+  
+  p.style.strokeDashoffset = (289 * (1 - progressFraction)).toFixed(1);
+  p.style.stroke = isUrgent ? '#ff3b30' : '#2ee66b';
+}
+
+function clearRing() {
+  if (!G) return;
+  if (ringAnimId) { cancelAnimationFrame(ringAnimId); ringAnimId = null; }
+  G.ring = null;
+  G.P.forEach(p => { const e = ringEl(p.i); if (e) e.style.display = 'none'; });
+}
+
+const showTm = frac => setRing(0, frac, frac <= 0.3), hideTm = clearRing;
+
+function startTimer() {
+  const tk = G.tk = (G.tk || 0) + 1;
+  const DURATION = 10000; // 10 secondes
+  const startTime = performance.now();
+
+  if (ringAnimId) cancelAnimationFrame(ringAnimId);
+
+  function updateTimer(now) {
+    if (G.tk !== tk || G.phase !== 'turn' || G.cur !== 0) return;
+    const elapsed = now - startTime;
+    const remaining = Math.max(0, DURATION - elapsed);
+    const fraction = remaining / DURATION;
+
+    setRing(0, fraction, fraction <= 0.3);
+
+    if (remaining > 0) {
+      ringAnimId = requestAnimationFrame(updateTimer);
+    } else {
+      hideTm();
+      autoGive();
+    }
   }
-  p.style.stroke=t<=3?'#ff3b30':'#2ee66b';
-}
 
-function clearRing(){
-  if(!G)return;
-  G.ring=null;
-  G.P.forEach(p=>{const e=ringEl(p.i);if(e)e.style.display='none'});
-}
-
-const showTm=t=>setRing(0,t),hideTm=clearRing;
-
-function startTimer(){
-  const tk=G.tk=(G.tk||0)+1;
-  showTm(10);
-  for(let s=1;s<=10;s++)later(()=>{
-    if(G.tk!==tk||G.phase!=='turn'||G.cur!==0)return;
-    setRing(0,10-s);
-    if(s===10){hideTm();autoGive()}
-  },s*1000);
+  ringAnimId = requestAnimationFrame(updateTimer);
 }
 
 function autoGive(){const me=G.P[0];let k=G.sel?me.h.indexOf(G.sel):-1;toast('⏱ Temps écoulé : '+(k<0?'carte au hasard !':'carte choisie donnée !'),1600);if(k<0)k=Math.floor(Math.random()*me.h.length);give1(0,k)}
@@ -912,3 +947,4 @@ if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator
 
 </script>
 </body></html>
+
