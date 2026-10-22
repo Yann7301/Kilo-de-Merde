@@ -313,7 +313,7 @@ button:disabled{opacity:.4;cursor:default}
 .tf{position:absolute;width:0;height:0}
 .tf i{position:absolute;left:-14px;top:-20px;width:28px;height:40px;border-radius:4px;border:1px solid #fff;background:var(--back);background-size:cover;background-position:center;transform-origin:50% 130%;box-shadow:0 2px 4px #000a}
 @keyframes pulse{to{box-shadow:0 0 0 3px #fff,0 0 22px 4px var(--gold)}}
-@keyframes sheen{to{transform:translateX(120%)} }
+@keyframes sheen{to{transform:translateX(120%)}}
 
 body.shake{animation:shake .3s}
 #stage{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:3;background:#0006}
@@ -346,7 +346,7 @@ body.shake{animation:shake .3s}
 @keyframes bye{to{transform:translateX(-170px) rotate(-40deg);opacity:0}}
 @keyframes shake{25%{transform:translate(-6px,4px)}50%{transform:translate(6px,-4px)}75%{transform:translate(-4px,-3px)}}
 @keyframes spin{to{transform:rotate(-760deg) scale(.2);opacity:.2}}
-@keyframes sink{0%{transform:rotate(var(--a)) translateX(120px)}100%{transform:rotate(calc(var(--a) + 540deg)) translateX(0) scale(0)}}
+@keyframes sink{0%{transform:rotate(calc(var(--a)) translateX(120px)}100%{transform:rotate(calc(var(--a) + 540deg)) translateX(0) scale(0)}}
 
 #cd,#hm{pointer-events:auto;cursor:pointer}
 #cd{font-size:min(34vh,120px)}.hd{font-size:min(20vh,64px)}.mini{font-size:min(10vh,30px)}
@@ -423,7 +423,7 @@ body.shake{animation:shake .3s}
 <p>Les cartes restantes forment le <b>tas de merde</b>, au milieu de la table. Les cartes en trop sont écartées pour la manche.</p>
 <h3>Les manches</h3><p>Avant de commencer, tout le monde vote pendant 5 secondes pour choisir entre 2 et 6 manches. Le choix le plus voté est retenu ; en cas d'égalité, tirage au sort entre les ex æquo.</p>
 <h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage ; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
-<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démarre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
+<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
 <h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches. Après une feinte, il faut attendre 45 secondes avant d'en refaire une (le bouton se grise avec un décompte), pour tous les joueurs.</p>
 <h3>La chasse d'eau</h3><p>Si tu pioches un 7, tu le gardes en réserve (jusqu'aux 4 sept du jeu). Tu peux tirer la chasse d'eau quand tu veux : toutes tes cartes piochées, tes kilos de merde, repartent sous le tas avec le 7. Un bonus acheté au magasin ajoute une carte 7 spéciale (avec une toilette) en plus des 4 vrais 7, soit 5 au maximum.</p>
 <h3>Les kilos de merde</h3><p>Du 2 au 10, la valeur de la carte. Valet : 11 kilos, dame : 12, roi : 13, as : 100 kilos !</p>
@@ -492,7 +492,7 @@ function sBah(){
 function toggleSnd(){const on=PF.set.sound||PF.set.music;PF.set.sound=PF.set.music=!on;mute=!PF.set.sound;if(PF.set.music)musicOn();else musicOff();Store.save(PF);syncSnd()}
 const Store={k:'kdm_profile_v1',load(){try{const d=JSON.parse(localStorage.getItem(this.k));if(d&&d.v===1)return d}catch(e){}return null},save(p){try{localStorage.setItem(this.k,JSON.stringify(p))}catch(e){}}};
 const PF=Object.assign({v:1,id:Math.random().toString(36).slice(2,10),xp:0,lvl:1,gold:0,games:0,wins:0,losses:0,streak:0,best:0},Store.load()||{});
-PF.own=PF.own||{sk:[0],bk:[0],tb:[0]};PF.eq=PF.eq||{sk:0,bk:0,tb:0};PF.bag=PF.bag||{chasse:0};PF.selSlots=PF.selSlots||[null,null,null];PF.set=Object.assign({sound:true,music:true,vib:true},PF.set);PF.ads=PF.ads||{d:'',n:0};
+PF.own=PF.own||{sk:[0],bk:[0],tb:[0]};PF.eq=PF.eq||{sk:0,bk:0,tb:0};PF.bag=PF.bag||{chasse:0};PF.selSlots=Array.isArray(PF.selSlots)?PF.selSlots:[null,null,null];PF.set=Object.assign({sound:true,music:true,vib:true},PF.set);PF.ads=PF.ads||{d:'',n:0};
 const need=l=>100*(l+1);
 function toast(h,ms){ms=ms||2600;const e=document.createElement('div');e.className='ts';e.innerHTML=h;e.style.animationDelay='0s,'+(ms-400)/1000+'s';$('toasts').appendChild(e);setTimeout(()=>e.remove(),ms)}
 function gain(xp,gold,why){
@@ -1068,15 +1068,14 @@ function buy(t,id){
 function equip(t,i){PF.eq[t]=i;applyTheme();renderMyAvatar();Store.save(PF);shop(t)}
 
 let activeSlot = null;
+
 function clickSlot(slotIndex){
-  PF.selSlots = PF.selSlots || [null,null,null];
+  if(!Array.isArray(PF.selSlots)) PF.selSlots = [null,null,null];
   if(PF.selSlots[slotIndex] !== null){
-    // Si la case contient déjà un bonus, un clic dessus le retire
     PF.selSlots[slotIndex] = null;
     Store.save(PF);
     renderBonusSlots();
   } else {
-    // Sinon, on ouvre le sac pour en choisir un
     activeSlot = slotIndex;
     $('bag').style.display='flex';
     bagSelectMode();
@@ -1093,7 +1092,6 @@ function bag(){
 function bagSelectMode(){
   const L=BO.filter(x=>!x.off&&(PF.bag[x.id]||0)>0);
   $('bagl').innerHTML=L.length?L.map(x=>{
-    // Vérifier combien de fois ce bonus est déjà assigné dans les slots
     const assignedCount = (PF.selSlots || []).filter(s => s === x.id).length;
     const available = (PF.bag[x.id] || 0) - assignedCount;
     return '<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>Dispo : '+available+' / '+PF.bag[x.id]+'</small><button '+(available<=0?'disabled':'')+' onclick="assignBonusToSlot(\''+x.id+'\')">Mettre dans la case</button></div>';
@@ -1102,8 +1100,7 @@ function bagSelectMode(){
 
 function assignBonusToSlot(id){
   if(activeSlot !== null){
-    PF.selSlots = PF.selSlots || [null,null,null];
-    // Vérifier à nouveau la disponibilité
+    if(!Array.isArray(PF.selSlots)) PF.selSlots = [null,null,null];
     const assignedCount = PF.selSlots.filter(s => s === id).length;
     if((PF.bag[id] || 0) > assignedCount){
       PF.selSlots[activeSlot] = id;
@@ -1117,7 +1114,7 @@ function assignBonusToSlot(id){
 }
 
 function renderBonusSlots(){
-  PF.selSlots = PF.selSlots || [null,null,null];
+  if(!Array.isArray(PF.selSlots)) PF.selSlots = [null,null,null];
   const slots = document.querySelectorAll('.bslot');
   slots.forEach((el, idx)=>{
     const bonusId = PF.selSlots[idx];
@@ -1131,7 +1128,7 @@ function renderBonusSlots(){
 
 function selBonus(id){PF.sel=id||null;Store.save(PF);bag()}
 function useBonus(){
-  PF.selSlots = PF.selSlots || [null,null,null];
+  if(!Array.isArray(PF.selSlots)) PF.selSlots = [null,null,null];
   PF.selSlots.forEach(id => {
     if(id === 'chasse' && (PF.bag.chasse||0)>0){
       PF.bag.chasse--;
@@ -1139,7 +1136,6 @@ function useBonus(){
       toast("🚽 Bonus activé : un 7 chasse d'eau en plus");
     }
   });
-  // Réinitialiser les slots après consommation pour la partie
   PF.selSlots = [null, null, null];
   Store.save(PF);
   renderBonusSlots();
@@ -1177,12 +1173,15 @@ if(document.addEventListener){document.addEventListener('gesturestart',e=>e.prev
   const bar=document.querySelector('#ld i');
   loadMus('menu');loadMus('jeu');
   imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
-  setTimeout(()=>{bar.style.width='100%'},60);
+  setTimeout(()=>{if(bar)bar.style.width='100%'},60);
   setTimeout(()=>{
     const sv=hasSave();
-    $('lt').textContent=sv?'Une partie est en cours…':"Touche l'écran pour jouer";$('lt').className='blink';
-    $('sb').style.display=sv?'flex':'none';
-    if(!sv)$('splash').onclick=enterApp;
+    if($('lt')){
+      $('lt').textContent=sv?'Une partie est en cours…':"Touche l'écran pour jouer";
+      $('lt').className='blink';
+    }
+    if($('sb')) $('sb').style.display=sv?'flex':'none';
+    if(!sv && $('splash')) $('splash').onclick=enterApp;
   },1900);
 })();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
