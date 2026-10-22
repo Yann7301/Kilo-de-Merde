@@ -646,6 +646,12 @@ function rewardFor(n,rk){
 }
 function finish(){
   G.phase='over';ep++;clearSave();
+  // Bonus non utilisés pendant la partie : retournés dans le sac au lieu d'être détruits
+  const unused=G.P[0].s.filter(x=>x&&x.b).length;
+  if(unused>0){
+    PF.bag.chasse=(PF.bag.chasse||0)+unused;Store.save(PF);
+    setTimeout(()=>toast("🎒 Bonus non utilisé : retourné dans ton sac",3000),2400);
+  }
   const t=G.P.map(p=>({p,k:kil(p)})).sort((a,b)=>a.k-b.k),mn=t[0].k,mx=t[t.length-1].k,me=t.find(x=>x.p.me).k;
   const win=me===mn,lose=me===mx&&mx>mn,rk=1+t.filter(x=>x.k<me).length;
   const RW=rewardFor(G.n,rk),rl=rk===1?'1er':rk+'e';
