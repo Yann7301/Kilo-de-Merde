@@ -854,7 +854,10 @@ const BK=[
   {n:'Vert',p:150,bg:'repeating-linear-gradient(45deg,#14532d,#14532d 4px,#2f9e44 4px,#2f9e44 8px)'},
   {n:'Violet',p:250,bg:'repeating-linear-gradient(45deg,#4a1d96,#4a1d96 4px,#7c3aed 4px,#7c3aed 8px)'},
   {n:'Or',p:500,bg:'repeating-linear-gradient(45deg,#8a5d00,#8a5d00 4px,#f6b82e 4px,#f6b82e 8px)'},
-  {n:'Caca Célèbre',p:1000,bg:'url(19908.jpg)'}
+  {n:'Caca Célèbre',p:1000,bg:'url(19908.jpg)'},
+  {n:'Mouche Dorée',p:1000,bg:'url(20016.jpg)'},
+  {n:'Ventouse Rigolote',p:1000,bg:'url(20015.jpg)'},
+  {n:'Papier Toilette Souriant',p:1000,bg:'url(20012.jpg)'}
 ];
 const BO=[{id:'chasse',n:"7 Chasse d'eau",e:'🚽',p:100,d:'1 carte 7 en plus (max 5)'},{id:'x1',n:'Bonus mystère',e:'🎁',p:0,off:1,d:'Bientôt'},{id:'x2',n:'Bonus mystère',e:'🎁',p:0,off:1,d:'Bientôt'}];
 const ADN=5,ADG=20;
@@ -863,7 +866,11 @@ const closeOv=i=>{$(i).style.display='none'};
 function applyTheme(){
   const item = BK[PF.eq.bk];
   const val = item.bg;
-  document.documentElement.style.setProperty('--back', val);
+  if(val.startsWith('url(')){
+    document.documentElement.style.setProperty('--back', val + ' center/cover no-repeat');
+  } else {
+    document.documentElement.style.setProperty('--back', val);
+  }
 }
 function syncSnd(){document.querySelectorAll('.sndb').forEach(b=>{b.textContent=(PF.set.sound||PF.set.music)?'🔊':'🔇'})}
 const vib=ms=>{try{if(PF.set.vib&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
@@ -998,7 +1005,12 @@ function shop(t){
     if(t==='sk'){
       pv='<div style="width:52px;height:52px">'+avatar(i)+'</div>';
     } else if(t==='bk'){
-      pv='<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;background:'+x.bg+';background-size:cover;background-position:center"></div>';
+      if(x.bg.startsWith('url(')){
+        const imgUrl = x.bg.replace(/url\(['"]?([^'"]+)['"]?\)/, '$1');
+        pv='<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;overflow:hidden"><img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover"></div>';
+      } else {
+        pv='<div style="width:38px;height:54px;border-radius:5px;border:2px solid #fff;background:'+x.bg+';background-size:cover;background-position:center"></div>';
+      }
     } else {
       pv=x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':'<div style="font-size:38px">'+x.e+'</div>';
     }
@@ -1060,7 +1072,7 @@ mute=!PF.set.sound;applyTheme();syncSnd();pfRender();renderMyAvatar();
 if(typeof addEventListener==='function')addEventListener('resize',()=>{if(G&&G.P)render()});
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
-  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg','20010.jpg'];let n=0;
+  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg','20010.jpg','20016.jpg','20015.jpg','20012.jpg'];let n=0;
   const bar=document.querySelector('#ld i');
   loadMus('menu');loadMus('jeu');
   imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
