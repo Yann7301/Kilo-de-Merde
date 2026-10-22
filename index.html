@@ -691,7 +691,7 @@ function reveal(){
   const c=G.call;G.phase='res';
   $('hm').classList.remove('main');$('hm').classList.add(c.real?'slam':'bye');
   document.querySelectorAll('#fl .hd').forEach(e=>e.classList.add('slam'));
-  $('cd').innerHTML=c.real?'🖐️':'<img src="20000.jpg" alt="Feinte" style="width:120px;height:120px;border-radius:50%;object-fit:contain;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
+  $('cd').innerHTML=c.real?'<img src="20010.jpg" alt="Vraie tape" style="width:140px;height:140px;border-radius:50%;object-fit:cover;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">':'<img src="20000.jpg" alt="Feinte" style="width:120px;height:120px;border-radius:50%;object-fit:contain;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
   if(c.real){sSlap();document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),350)}else{sWhoosh();setTimeout(sLaugh,450)}
   c.fol.forEach((f,k)=>setTimeout(sSlap,160*(k+1)));
   later(settle,1200);render();
@@ -1060,7 +1060,7 @@ mute=!PF.set.sound;applyTheme();syncSnd();pfRender();renderMyAvatar();
 if(typeof addEventListener==='function')addEventListener('resize',()=>{if(G&&G.P)render()});
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
-  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg'];let n=0;
+  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg','20010.jpg'];let n=0;
   const bar=document.querySelector('#ld i');
   loadMus('menu');loadMus('jeu');
   imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
