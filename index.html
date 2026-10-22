@@ -313,7 +313,7 @@ button:disabled{opacity:.4;cursor:default}
 .tf{position:absolute;width:0;height:0}
 .tf i{position:absolute;left:-14px;top:-20px;width:28px;height:40px;border-radius:4px;border:1px solid #fff;background:var(--back);background-size:cover;background-position:center;transform-origin:50% 130%;box-shadow:0 2px 4px #000a}
 @keyframes pulse{to{box-shadow:0 0 0 3px #fff,0 0 22px 4px var(--gold)}}
-@keyframes sheen{to{transform:translateX(120%)}}
+@keyframes sheen{to{transform:translateX(120%)} }
 
 body.shake{animation:shake .3s}
 #stage{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:3;background:#0006}
@@ -409,9 +409,9 @@ body.shake{animation:shake .3s}
 </div>
 <div id="hm2" class="cnt" style="display:none">
   <div id="bonus-slots">
-    <div class="bslot" onclick="openBagForSlot(0)">❌</div>
-    <div class="bslot" onclick="openBagForSlot(1)">❌</div>
-    <div class="bslot" onclick="openBagForSlot(2)">❌</div>
+    <div class="bslot" onclick="clickSlot(0)">❌</div>
+    <div class="bslot" onclick="clickSlot(1)">❌</div>
+    <div class="bslot" onclick="clickSlot(2)">❌</div>
   </div>
   <b style="font-size:17px">Combien de joueurs ?</b><div class="nb"></div><button class="mb bl" onclick="showHome()" style="text-align:center">← Retour</button>
 </div>
@@ -423,7 +423,7 @@ body.shake{animation:shake .3s}
 <p>Les cartes restantes forment le <b>tas de merde</b>, au milieu de la table. Les cartes en trop sont écartées pour la manche.</p>
 <h3>Les manches</h3><p>Avant de commencer, tout le monde vote pendant 5 secondes pour choisir entre 2 et 6 manches. Le choix le plus voté est retenu ; en cas d'égalité, tirage au sort entre les ex æquo.</p>
 <h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage ; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
-<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
+<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démarre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
 <h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches. Après une feinte, il faut attendre 45 secondes avant d'en refaire une (le bouton se grise avec un décompte), pour tous les joueurs.</p>
 <h3>La chasse d'eau</h3><p>Si tu pioches un 7, tu le gardes en réserve (jusqu'aux 4 sept du jeu). Tu peux tirer la chasse d'eau quand tu veux : toutes tes cartes piochées, tes kilos de merde, repartent sous le tas avec le 7. Un bonus acheté au magasin ajoute une carte 7 spéciale (avec une toilette) en plus des 4 vrais 7, soit 5 au maximum.</p>
 <h3>Les kilos de merde</h3><p>Du 2 au 10, la valeur de la carte. Valet : 11 kilos, dame : 12, roi : 13, as : 100 kilos !</p>
@@ -865,7 +865,6 @@ const SN=['tick','slap','whoosh','plop','card','flush','lose','win','level','bah
 const sBip=()=>{if(playSmp('bip'))return;tone(1300,.09,'square',.13);setTimeout(()=>tone(1300,.09,'square',.13),150)};
 function bipLoop(){const k=G.bp=(G.bp||0)+1;(function f(){if(G.bp!==k||!OKP.includes(G.phase)||!four(G.P[0]))return;sBip();vib(60);later(f,950)})()}
 
-/* Liste complète des personnages du magasin (SVG + 9 JPEGs/PNGs personnalisés) */
 const SK=[
   {n:'Roi',p:0},
   {n:'Moustachu',p:150},
@@ -1069,11 +1068,21 @@ function buy(t,id){
 function equip(t,i){PF.eq[t]=i;applyTheme();renderMyAvatar();Store.save(PF);shop(t)}
 
 let activeSlot = null;
-function openBagForSlot(slotIndex){
-  activeSlot = slotIndex;
-  $('bag').style.display='flex';
-  bagSelectMode();
+function clickSlot(slotIndex){
+  PF.selSlots = PF.selSlots || [null,null,null];
+  if(PF.selSlots[slotIndex] !== null){
+    // Si la case contient déjà un bonus, un clic dessus le retire
+    PF.selSlots[slotIndex] = null;
+    Store.save(PF);
+    renderBonusSlots();
+  } else {
+    // Sinon, on ouvre le sac pour en choisir un
+    activeSlot = slotIndex;
+    $('bag').style.display='flex';
+    bagSelectMode();
+  }
 }
+
 function openBag(){activeSlot = null; $('bag').style.display='flex'; bag()}
 
 function bag(){
@@ -1083,14 +1092,25 @@ function bag(){
 
 function bagSelectMode(){
   const L=BO.filter(x=>!x.off&&(PF.bag[x.id]||0)>0);
-  $('bagl').innerHTML=L.length?L.map(x=>'<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>En sac : '+PF.bag[x.id]+'</small><button onclick="assignBonusToSlot(\''+x.id+'\')">Mettre dans la case</button></div>').join(''):'<p>Ton sac est vide. Achète des bonus au magasin 🛒</p>';
+  $('bagl').innerHTML=L.length?L.map(x=>{
+    // Vérifier combien de fois ce bonus est déjà assigné dans les slots
+    const assignedCount = (PF.selSlots || []).filter(s => s === x.id).length;
+    const available = (PF.bag[x.id] || 0) - assignedCount;
+    return '<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>Dispo : '+available+' / '+PF.bag[x.id]+'</small><button '+(available<=0?'disabled':'')+' onclick="assignBonusToSlot(\''+x.id+'\')">Mettre dans la case</button></div>';
+  }).join(''):'<p>Ton sac est vide. Achète des bonus au magasin 🛒</p>';
 }
 
 function assignBonusToSlot(id){
   if(activeSlot !== null){
     PF.selSlots = PF.selSlots || [null,null,null];
-    PF.selSlots[activeSlot] = id;
-    Store.save(PF);
+    // Vérifier à nouveau la disponibilité
+    const assignedCount = PF.selSlots.filter(s => s === id).length;
+    if((PF.bag[id] || 0) > assignedCount){
+      PF.selSlots[activeSlot] = id;
+      Store.save(PF);
+    } else {
+      toast("Pas assez d'exemplaires dans le sac !");
+    }
     closeOv('bag');
     renderBonusSlots();
   }
@@ -1119,7 +1139,10 @@ function useBonus(){
       toast("🚽 Bonus activé : un 7 chasse d'eau en plus");
     }
   });
+  // Réinitialiser les slots après consommation pour la partie
+  PF.selSlots = [null, null, null];
   Store.save(PF);
+  renderBonusSlots();
 }
 function levelReward(l){
   const r=Math.random();let t;
