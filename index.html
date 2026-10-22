@@ -422,8 +422,8 @@ body.shake{animation:shake .3s}
 <ul><li>3 joueurs : les rois, les dames, les valets et les 2</li><li>4 joueurs : + les 3</li><li>5 joueurs : + les 4 et les 5</li><li>6 joueurs : + les 6</li></ul>
 <p>Les cartes restantes forment le <b>tas de merde</b>, au milieu de la table. Les cartes en trop sont écartées pour la manche.</p>
 <h3>Les manches</h3><p>Avant de commencer, tout le monde vote pendant 5 secondes pour choisir entre 2 et 6 manches. Le choix le plus voté est retenu ; en cas d'égalité, tirage au sort entre les ex æquo.</p>
-<h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage ; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
-<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
+<h3>Une manche</h3><p>Chaque joueur reçoit 5 cartes. Celui qui a la dame de cœur commence : il donne une de ses cartes au joueur à sa droite, puis chacun fait de même à son tour. Tu as 10 secondes pour choisir ta carte (tes cartes brillent, un anneau vert puis rouge se réduit autour de ton personnage; chaque joueur a le sien) : touche une carte, puis touche-la encore pour la donner. Sans choix, une carte au hasard est donnée. Le but : avoir 4 cartes identiques, de même valeur (ou même tête) ou de même couleur (cœur, pique, carreau, trèfle).</p>
+<h3>Taper le tas</h3><p>Dès que tu as quatre cartes identiques (même avant de donner ta carte), tu peux taper le tas du milieu : ton bouton TAPER et le tas de pioche clignotent, et ça bipe. Touche l'un des deux pour taper. Il reste bloqué tant que tu n'as pas 4 cartes identiques. Pour suivre quelqu'un, touche SUIVRE ou la grosse main au centre. Un chrono de 3 secondes démarre : les autres ont ce temps pour te suivre avec le bouton SUIVRE. Celui qui ne suit pas, ou le dernier à suivre si tout le monde a suivi, perd la manche et pioche une carte du tas : sa valeur en kilos s'ajoute à son total.</p>
 <h3>La feinte</h3><p>Tu peux faire semblant de taper sans avoir de carré. Ceux qui se font avoir et te suivent piochent une carte. Si personne ne suit ta feinte, c'est toi qui pioches. Après une feinte, il faut attendre 45 secondes avant d'en refaire une (le bouton se grise avec un décompte), pour tous les joueurs.</p>
 <h3>La chasse d'eau</h3><p>Si tu pioches un 7, tu le gardes en réserve (jusqu'aux 4 sept du jeu). Tu peux tirer la chasse d'eau quand tu veux : toutes tes cartes piochées, tes kilos de merde, repartent sous le tas avec le 7. Un bonus acheté au magasin ajoute une carte 7 spéciale (avec une toilette) en plus des 4 vrais 7, soit 5 au maximum.</p>
 <h3>Les kilos de merde</h3><p>Du 2 au 10, la valeur de la carte. Valet : 11 kilos, dame : 12, roi : 13, as : 100 kilos !</p>
@@ -1169,20 +1169,46 @@ mute=!PF.set.sound;applyTheme();syncSnd();pfRender();renderMyAvatar();
 if(typeof addEventListener==='function')addEventListener('resize',()=>{if(G&&G.P)render()});
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
-  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg','20010.jpg','20016.jpg','20015.jpg','20012.jpg'];let n=0;
-  const bar=document.querySelector('#ld i');
+  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg','20010.jpg','20016.jpg','20015.jpg','20012.jpg'];
+  let loadedCount = 0;
+  const totalImages = imgs.length;
+  const bar = document.querySelector('#ld i');
+  
   loadMus('menu');loadMus('jeu');
-  imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
-  setTimeout(()=>{if(bar)bar.style.width='100%'},60);
-  setTimeout(()=>{
-    const sv=hasSave();
-    if($('lt')){
-      $('lt').textContent=sv?'Une partie est en cours…':"Touche l'écran pour jouer";
-      $('lt').className='blink';
+
+  function checkDone() {
+    loadedCount++;
+    const pct = Math.round((loadedCount / totalImages) * 100);
+    if(bar) bar.style.width = pct + '%';
+    if(loadedCount >= totalImages) {
+      finalizeSplash();
     }
-    if($('sb')) $('sb').style.display=sv?'flex':'none';
-    if(!sv && $('splash')) $('splash').onclick=enterApp;
-  },1900);
+  }
+
+  imgs.forEach(s => {
+    const i = new Image();
+    i.onload = i.onerror = checkDone;
+    i.src = s;
+  });
+
+  // Sécurité : si le chargement des images prend trop de temps ou échoue, on force l'affichage après 2 secondes max
+  const safetyTimeout = setTimeout(() => {
+    if(bar && bar.style.width !== '100%') {
+      bar.style.width = '100%';
+      finalizeSplash();
+    }
+  }, 2000);
+
+  function finalizeSplash(){
+    clearTimeout(safetyTimeout);
+    const sv = hasSave();
+    if($('lt')){
+      $('lt').textContent = sv ? 'Une partie est en cours…' : "Touche l'écran pour jouer";
+      $('lt').className = 'blink';
+    }
+    if($('sb')) $('sb').style.display = sv ? 'flex' : 'none';
+    if($('splash')) $('splash').onclick = enterApp;
+  }
 })();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
