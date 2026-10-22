@@ -1006,7 +1006,7 @@ function shop(t){
     if(t==='bo')act=x.off?'<button disabled>Bientôt</button>':'<button onclick="buy(\'bo\',\''+id+'\')">🪙 '+x.p+'</button><small>En sac : '+(PF.bag[id]||0)+'</small>';
     else if(PF.eq[t]===i)act='<button disabled>Équipé ✓</button>';
     else if(PF.own[t].includes(i))act='<button onclick="equip(\''+t+'\','+i+')">Équiper</button>';
-    else act='<button onclick="buy(\'t\','+i+')">🪙 '+x.p+'</button>';
+    else act='<button onclick="buy(\''+t+'\','+i+')">🪙 '+x.p+'</button>';
     return '<div class="it"><div class="pv">'+pv+'</div><b>'+x.n+'</b>'+(x.d?'<small>'+x.d+'</small>':'')+act+'</div>';
   }).join('');
 }
@@ -1022,7 +1022,7 @@ function equip(t,i){PF.eq[t]=i;applyTheme();renderMyAvatar();Store.save(PF);shop
 function openBag(){$('bag').style.display='flex';bag()}
 function bag(){
   const L=BO.filter(x=>!x.off&&(PF.bag[x.id]||0)>0);
-  $('bagl').innerHTML=L.length?L.map(x=>'<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>En sac : '+PF.bag[x.id]+'</small><button onclick="selBonus(\''+(PF.sel===x.id?'':x.id+'\')')">'+(PF.sel===x.id?'✓ Choisi (annuler)':'Choisir pour la prochaine partie')+'</button></div>').join(''):'<p>Ton sac est vide. Achète des bonus au magasin 🛒</p>';
+  $('bagl').innerHTML=L.length?L.map(x=>'<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>En sac : '+PF.bag[x.id]+'</small><button onclick="selBonus(\''+(PF.sel===x.id?'':x.id)+'\')">'+(PF.sel===x.id?'✓ Choisi (annuler)':'Choisir pour la prochaine partie')+'</button></div>').join(''):'<p>Ton sac est vide. Achète des bonus au magasin 🛒</p>';
 }
 function selBonus(id){PF.sel=id||null;Store.save(PF);bag()}
 function useBonus(){
