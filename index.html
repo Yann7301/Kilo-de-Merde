@@ -151,7 +151,7 @@ button:disabled{opacity:.4;cursor:default}
 #tap,#feint{width:80px;height:80px;border-radius:50%;border:4px solid #fff;font-size:14px;font-weight:800;color:#fff;padding:0}
 #tap{background:var(--red);box-shadow:0 5px 0 #8e1f17}
 
-#feint{background:rgba(214, 58, 47, 0.4);box-shadow:0 5px 0 #8a520b;position:relative;overflow:hidden}
+#feint{background:rgba(214, 58, 47, 0.4);box-shadow:0 5px 0 #8a520b;position:relative;overflow:hidden;background-image:url('20000.jpg');background-size:cover;background-position:center}
 #feint.cooldown::after {
   content: "";
   position: absolute;
@@ -366,7 +366,7 @@ body.shake{animation:shake .3s}
     <div class="mt2"><span id="myn" class="np"></span><span id="mykg" class="kg"></span></div>
   </div>
 </div>
-<div id="btns"><div class="fw"><button id="feint" onclick="feintBtn()">🎭<br>FEINTE</button><svg id="fcd" viewBox="0 0 100 100" style="display:none"><circle cx="50" cy="50" r="25"/></svg></div><button id="tap" onclick="tapBtn()"></button></div>
+<div id="btns"><div class="fw"><button id="feint" onclick="feintBtn()"></button><svg id="fcd" viewBox="0 0 100 100" style="display:none"><circle cx="50" cy="50" r="25"/></svg></div><button id="tap" onclick="tapBtn()"></button></div>
 </div>
 <div id="stage"></div><div id="toasts"></div><div id="bnr"></div>
 <div id="menu">
@@ -530,9 +530,9 @@ function start(n){
   for(let r=0;r<13;r++)if(!ranks.includes(r))for(let s=0;s<4;s++)tas.push({r,s});
   shuf(tas);
   const names=['Toi',...shuf(NAMES.slice()).slice(0,n-1)];
-  
+
   const availableSkins = SK.map((_, idx) => idx);
-  
+
   G={n,ranks,tas,P:names.map((x,i)=>({
     nm:x,
     i,
@@ -544,7 +544,7 @@ function start(n){
     gull:rnd(.5,.9),
     lvl:i?Math.max(1,PF.lvl+Math.round(rnd(-2,2))):PF.lvl
   })),seats:shuf([0,1,2,3,4]).slice(0,n-1).sort((a,b)=>a-b),rounds:0,round:0,cur:0,phase:'vote',call:null,sel:null,sort:'r',bonus:true};
-  
+
   renderMyAvatar();$('stage').innerHTML='';applyTheme();useBonus();
   ['menu','over','rules','stats','shop','bag','gold','set'].forEach(i=>{$(i).style.display='none'});
   clearSave();buildRings();render();startVote();
@@ -596,10 +596,10 @@ function turn(){
   else{
     clearRing();
     msg(p.nm+' choisit une carte…');
-    
+
     const TIMER_DURATION = 10000;
     const aiDecisionTime = Math.round(rnd(2000, 8000));
-    
+
     const startTime = performance.now();
     if(ringAnimId) cancelAnimationFrame(ringAnimId);
 
@@ -691,7 +691,7 @@ function reveal(){
   const c=G.call;G.phase='res';
   $('hm').classList.remove('main');$('hm').classList.add(c.real?'slam':'bye');
   document.querySelectorAll('#fl .hd').forEach(e=>e.classList.add('slam'));
-  $('cd').textContent=c.real?'🖐️':'🎭';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
+  $('cd').innerHTML=c.real?'🖐️':'<img src="20000.jpg" alt="Feinte" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
   if(c.real){sSlap();document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),350)}else{sWhoosh();setTimeout(sLaugh,450)}
   c.fol.forEach((f,k)=>setTimeout(sSlap,160*(k+1)));
   later(settle,1200);render();
@@ -739,7 +739,7 @@ function settle(){
   else los=fol.length?fol:[cl];
   const res=drawFor(los);
   const tag=p=>c.real?(fol.includes(p)?' (dernier)':' (pas suivi)'):'';
-  msg((c.real?'🖐️ '+(cl.me?'Tu as tapé':cl.nm+' a tapé')+' en premier ! ':fol.length?'🎭 Feinte réussie ! ':"🎭 Personne n'a suivi ! ")+res.map(r=>r.txt+tag(r.p)).join(' · '));
+  msg((c.real?'🖐️ '+(cl.me?'Tu as tapé':cl.nm+' a tapé')+' en premier ! ':fol.length?'Feinte réussie ! ':"Personne n'a suivi ! ")+res.map(r=>r.txt+tag(r.p)).join(' · '));
   later(()=>{$('stage').innerHTML=''},1700);
   if(c.real){if(cl.me)gain(G.round>=6?100:10*G.round,G.round>=6?100:10*G.round,'Manche '+G.round+' gagnée');later(endRound,3400)}
   else{if(cl.me&&fol.length)gain(5,2,'Feinte réussie');later(c.after,2800)}
@@ -918,7 +918,7 @@ function setRing(i, progressFraction, isUrgent) {
   const e = ringEl(i); if (!e) return;
   e.style.display = 'block';
   const p = e.querySelector('.rp');
-  
+
   p.style.strokeDashoffset = (289 * (1 - progressFraction)).toFixed(1);
   p.style.stroke = isUrgent ? '#ff3b30' : '#2ee66b';
 }
@@ -1060,7 +1060,7 @@ mute=!PF.set.sound;applyTheme();syncSnd();pfRender();renderMyAvatar();
 if(typeof addEventListener==='function')addEventListener('resize',()=>{if(G&&G.P)render()});
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
-  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg'];let n=0;
+  const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg'];let n=0;
   const bar=document.querySelector('#ld i');
   loadMus('menu');loadMus('jeu');
   imgs.forEach(s=>{const i=new Image();i.onload=i.onerror=()=>{n++};i.src=s});
