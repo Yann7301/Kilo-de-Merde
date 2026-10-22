@@ -151,7 +151,7 @@ button:disabled{opacity:.4;cursor:default}
 #tap,#feint{width:80px;height:80px;border-radius:50%;border:4px solid #fff;font-size:14px;font-weight:800;color:#fff;padding:0}
 #tap{background:var(--red);box-shadow:0 5px 0 #8e1f17}
 
-#feint{background:rgba(214, 58, 47, 0.4);box-shadow:0 5px 0 #8a520b;position:relative;overflow:hidden;background-image:url('20000.jpg');background-size:cover;background-position:center}
+#feint{background:rgba(214, 58, 47, 0.4);box-shadow:0 5px 0 #8a520b;position:relative;overflow:hidden;background-image:url('20000.jpg');background-size:contain;background-repeat:no-repeat;background-position:center}
 #feint.cooldown::after {
   content: "";
   position: absolute;
@@ -394,7 +394,7 @@ body.shake{animation:shake .3s}
 <h3>Récompenses</h3><p>Manche gagnée (seul le joueur qui valide la vraie tape gagne la récompense) : manche 1 = 10 XP et 10 or, manche 2 = 20, manche 3 = 30, manche 4 = 40, manche 5 = 50, manche 6 = 100. Feinte réussie : 5 XP et 2 or. Chasse d'eau : 1 XP et 1 or par carte évacuée. Classement final : le 1er gagne 500 XP et 200 or. À 5 ou 6 joueurs : 2e 200 XP et 50 or, 3e 100 XP et 20 or, les autres 30 XP et 20 or. À 4 joueurs : 2e 120 XP et 40 or, 3e 60 XP et 20 or, 4e 30 XP et 10 or. À 3 joueurs : 2e 100 XP et 30 or, 3e 30 XP et 10 or.</p></div><button class="sec" onclick="closeOv('rules')">Fermer</button></div>
 <div id="stats" class="ov"><div class="panel"><h2>STATISTIQUES</h2><div id="stbody"></div><div class="row2"><button class="sec" onclick="resetStats()">Réinitialiser</button><button class="sec" onclick="closeOv('stats')">Fermer</button></div></div></div>
 <div id="shop" class="ov"><div class="hd2"><h2>🛒 Magasin</h2><span class="chip">🪙 <b id="shg">0</b></span></div><div id="shtabs" class="tabs"></div><div id="shgrid"></div><p style="font-size:11px;opacity:.7">Prix provisoires, à ajuster.</p><button class="sec" onclick="closeOv('shop')">Fermer</button></div>
-<div id="bag" class="ov"><h2>👝 Sac bonus</h2><p>Choisis 1 bonus pour ta prochaine partie (un seul par partie).</p><div id="bagl"></div><button class="sec" onclick="closeOv('bag')">Fermer</button></div>
+<div id="bag" class="ov"><h2>👝 SAC BONUS</h2><p>Choisis 1 bonus pour ta prochaine partie (un seul par partie).</p><div id="bagl"></div><button class="sec" onclick="closeOv('bag')">Fermer</button></div>
 <div id="gold" class="ov"><h2>🪙 Or +</h2><div class="panel"><p>Regarde une publicité pour gagner de l'or.</p><div class="sr"><span>Pubs aujourd'hui</span><b id="adn"></b></div><button id="adb" class="mb g" onclick="watchAd()" style="text-align:center"></button></div><button class="sec" onclick="closeOv('gold')">Fermer</button></div>
 <div id="set" class="ov"><h2>⚙️ Paramètres</h2><div class="panel" id="setl"></div><button class="sec" onclick="closeOv('set')">Fermer</button></div>
 <div id="adv" class="ov" style="z-index:12"><h2>PUB DE TEST</h2><div id="adt" style="font-size:54px;font-weight:900;color:var(--gold)"></div><p>La vraie publicité (AdMob) s'affichera ici dans la version finale.</p></div>
@@ -691,7 +691,7 @@ function reveal(){
   const c=G.call;G.phase='res';
   $('hm').classList.remove('main');$('hm').classList.add(c.real?'slam':'bye');
   document.querySelectorAll('#fl .hd').forEach(e=>e.classList.add('slam'));
-  $('cd').innerHTML=c.real?'🖐️':'<img src="20000.jpg" alt="Feinte" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
+  $('cd').innerHTML=c.real?'🖐️':'<img src="20000.jpg" alt="Feinte" style="width:120px;height:120px;border-radius:50%;object-fit:contain;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';$('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
   if(c.real){sSlap();document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),350)}else{sWhoosh();setTimeout(sLaugh,450)}
   c.fol.forEach((f,k)=>setTimeout(sSlap,160*(k+1)));
   later(settle,1200);render();
@@ -1006,7 +1006,7 @@ function shop(t){
     if(t==='bo')act=x.off?'<button disabled>Bientôt</button>':'<button onclick="buy(\'bo\',\''+id+'\')">🪙 '+x.p+'</button><small>En sac : '+(PF.bag[id]||0)+'</small>';
     else if(PF.eq[t]===i)act='<button disabled>Équipé ✓</button>';
     else if(PF.own[t].includes(i))act='<button onclick="equip(\''+t+'\','+i+')">Équiper</button>';
-    else act='<button onclick="buy(\''+t+'\','+i+')">🪙 '+x.p+'</button>';
+    else act='<button onclick="buy(\'t\','+i+')">🪙 '+x.p+'</button>';
     return '<div class="it"><div class="pv">'+pv+'</div><b>'+x.n+'</b>'+(x.d?'<small>'+x.d+'</small>':'')+act+'</div>';
   }).join('');
 }
@@ -1022,7 +1022,7 @@ function equip(t,i){PF.eq[t]=i;applyTheme();renderMyAvatar();Store.save(PF);shop
 function openBag(){$('bag').style.display='flex';bag()}
 function bag(){
   const L=BO.filter(x=>!x.off&&(PF.bag[x.id]||0)>0);
-  $('bagl').innerHTML=L.length?L.map(x=>'<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>En sac : '+PF.bag[x.id]+'</small><button onclick="selBonus(\''+(PF.sel===x.id?'':x.id)+'\')">'+(PF.sel===x.id?'✓ Choisi (annuler)':'Choisir pour la prochaine partie')+'</button></div>').join(''):'<p>Ton sac est vide. Achète des bonus au magasin 🛒</p>';
+  $('bagl').innerHTML=L.length?L.map(x=>'<div class="it" style="width:160px"><div class="pv">'+(x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':x.e)+'</div><b>'+x.n+'</b><small>En sac : '+PF.bag[x.id]+'</small><button onclick="selBonus(\''+(PF.sel===x.id?'':x.id+'\')')">'+(PF.sel===x.id?'✓ Choisi (annuler)':'Choisir pour la prochaine partie')+'</button></div>').join(''):'<p>Ton sac est vide. Achète des bonus au magasin 🛒</p>';
 }
 function selBonus(id){PF.sel=id||null;Store.save(PF);bag()}
 function useBonus(){
