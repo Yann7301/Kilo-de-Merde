@@ -779,7 +779,11 @@ function applyTheme(){
     document.documentElement.style.setProperty('--back', val);
   }
 }
-function syncSnd(){document.querySelectorAll('.sndb').forEach(b=>{b.textContent=(PF.set.sound||PF.set.music)?'🔊':'🔇'0})}
+function syncSnd(){
+  document.querySelectorAll('.sndb').forEach(b=>{
+    b.textContent = (PF.set.sound || PF.set.music) ? '🔊' : '🔇';
+  });
+}
 const vib=ms=>{try{if(PF.set.vib&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 const TRK={
   menu:{bpm:112,mw:'square',mel:[76,0,79,76,74,0,72,0,72,0,76,0,81,79,76,0,77,0,81,77,76,0,72,0,74,0,79,74,71,0,67,0],bass:[48,0,55,0,48,0,55,0,45,0,52,0,45,0,52,0,41,0,48,0,41,0,48,0,43,0,50,0,43,0,50,0]},
