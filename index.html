@@ -287,7 +287,6 @@ body.shake{animation:shake .3s}
 <div id="over" class="ov"></div>
 <div id="splash"><div id="ld"><i></i></div><p id="lt">Chargement…</p><div id="sb" class="row2" style="display:none"><button class="mb g" onclick="event.stopPropagation();resumeGame()">▶ Reprendre la partie</button><button class="mb bl" onclick="event.stopPropagation();enterApp()">Menu</button></div></div>
 <script>
-// Filet de sécurité installé EN PREMIER : aucune erreur du script principal ne doit bloquer l'écran de chargement
 window.__bootErr=null;
 window.addEventListener('error',function(e){
   window.__bootErr=e.message||'erreur inconnue';
@@ -419,7 +418,7 @@ function showSolo(){$('hm1').style.display='none';$('hm2').style.display='flex';
 function showRules(){$('rules').style.display='flex'}
 function showStats(){
   const g=PF.games,pc=g?Math.round(PF.wins/g*100):0;
-  $('stbody').innerHTML=[['🎮','Parties jouées',g],['🏆','Victoires',PF.wins],['💩','Défaites (kilo de merde)',PF.losses],['📊','% de victoire',pc+' %'],['🔥','Meilleure série',PF.best]].map(r=>'<div class="sr"><span>'+r[0]+' '+r[1]+'</span><b>'+r[2]+'</b></div>').join('');
+  $('stbody').innerHTML=[['🎮','Parties jouées',g],['🏆','Victoires',PF.wins],['💩','Défaites (kilo de merde)',PF.losses],['📊','% de victoire',pc+' %'],['🔥','Meilleure série',PF.best']].map(r=>'<div class="sr"><span>'+r[0]+' '+r[1]+'</span><b>'+r[2]+'</b></div>').join('');
   $('stats').style.display='flex';
 }
 function resetStats(){if(confirm('Réinitialiser les statistiques ?')){PF.games=PF.wins=PF.losses=PF.streak=PF.best=0;Store.save(PF);showStats()}}
@@ -580,16 +579,27 @@ function reveal(){
   const c=G.call;G.phase='res';
   $('hm').classList.remove('main');$('hm').classList.add(c.real?'slam':'bye');
   document.querySelectorAll('#fl .hd').forEach(e=>e.classList.add('slam'));
-  $('cd').innerHTML=c.real?'<video id="taped" src="20053.mp4" autoplay muted playsinline preload="auto" style="width:min(320px,82vw);height:auto;border-radius:14px;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">':'<img src="20000.jpg" alt="Feinte" style="width:120px;height:120px;border-radius:50%;object-fit:contain;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';
+  
   if(c.real){
+    $('cd').innerHTML='<video id="taped" src="20053.mp4" autoplay muted playsinline preload="auto" style="width:min(320px,82vw);height:auto;border-radius:14px;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';
     const vd=$('taped');
     if(vd){
-      vd.playbackRate=1.5; // vidéo accélérée un peu
+      vd.playbackRate=1.5;
       vd.play().catch(()=>{});
-      const skip=()=>{try{if(vd.currentTime<0.8)vd.currentTime=0.8}catch(e){}}; // sauter l'écran de titre statique du début
+      const skip=()=>{try{if(vd.currentTime<0.8)vd.currentTime=0.8}catch(e){}};
       if(vd.readyState>=1)skip();else vd.addEventListener('loadedmetadata',skip,{once:true});
     }
+  } else {
+    $('cd').innerHTML='<video id="feinted" src="20054.mp4" autoplay muted playsinline preload="auto" style="width:min(320px,82vw);height:auto;border-radius:14px;background-color:#07301a;border:4px solid var(--gold);box-shadow:0 4px 15px #000">';
+    const vf=$('feinted');
+    if(vf){
+      vf.playbackRate=1.5;
+      vf.play().catch(()=>{});
+      const skipf=()=>{try{if(vf.currentTime<0.8)vf.currentTime=0.8}catch(e){}};
+      if(vf.readyState>=1)skipf();else vf.addEventListener('loadedmetadata',skipf,{once:true});
+    }
   }
+
   $('bn').textContent=c.real?'VRAIE TAPE !':'FEINTE !';
   if(c.real){sSlap();document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),350)}else{sWhoosh();setTimeout(sLaugh,450)}
   c.fol.forEach((f,k)=>setTimeout(sSlap,160*(k+1)));
@@ -655,11 +665,10 @@ function rewardFor(n,rk){
 }
 function finish(){
   G.phase='over';ep++;clearSave();
-  // Bonus non utilisés pendant la partie : retournés dans le sac au lieu d'être détruits
   const unused=G.P[0].s.filter(x=>x&&x.b).length;
   if(unused>0){
     PF.bag.chasse=(PF.bag.chasse||0)+unused;Store.save(PF);
-    setTimeout(()=>toast("🎒 Bonus non utilisé : retourné dans ton sac",3000),2400);
+    setTimeout(()=>toast("👝 Bonus non utilisé : retourné dans ton sac",3000),2400);
   }
   const t=G.P.map(p=>({p,k:kil(p)})).sort((a,b)=>a.k-b.k),mn=t[0].k,mx=t[t.length-1].k,me=t.find(x=>x.p.me).k;
   const win=me===mn,lose=me===mx&&mx>mn,rk=1+t.filter(x=>x.k<me).length;
@@ -770,7 +779,7 @@ function applyTheme(){
     document.documentElement.style.setProperty('--back', val);
   }
 }
-function syncSnd(){document.querySelectorAll('.sndb').forEach(b=>{b.textContent=(PF.set.sound||PF.set.music)?'🔊':'🔇'})}
+function syncSnd(){document.querySelectorAll('.sndb').forEach(b=>{b.textContent=(PF.set.sound||PF.set.music)?'🔊':'🔇'0})}
 const vib=ms=>{try{if(PF.set.vib&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 const TRK={
   menu:{bpm:112,mw:'square',mel:[76,0,79,76,74,0,72,0,72,0,76,0,81,79,76,0,77,0,81,77,76,0,72,0,74,0,79,74,71,0,67,0],bass:[48,0,55,0,48,0,55,0,45,0,52,0,45,0,52,0,41,0,48,0,41,0,48,0,43,0,50,0,43,0,50,0]},
@@ -1021,11 +1030,10 @@ if(typeof addEventListener==='function')addEventListener('resize',()=>{if(G&&G.P
 if(document.addEventListener){document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false})}
 (function(){
   const splashEl=$('splash');
-  // Filet de sécurité : le splash est cliquable immédiatement, même si une erreur survient plus tard
   if(splashEl)splashEl.onclick=()=>enterApp();
   const imgs=['splash.jpg','menu.jpg','table.jpg','chasse.webp','fin_gagne.jpg','fin_perdu.jpg','19908.jpg','19606.jpg','19607.jpg','19608.jpg','19609.jpg','19610.jpg','19979.png','19980.png','19983.jpg','19984.jpg','20000.jpg','20016.jpg','20015.jpg','20012.jpg'];
-  // précharge de la vidéo de la vraie tape pour qu'elle soit prête dès la première tape
   try{fetch('20053.mp4').then(()=>{}).catch(()=>{})}catch(e){}
+  try{fetch('20054.mp4').then(()=>{}).catch(()=>{})}catch(e){}
   let loadedCount = 0;
   const totalImages = imgs.length;
   const bar = document.querySelector('#ld i');
@@ -1043,7 +1051,6 @@ if(document.addEventListener){document.addEventListener('gesturestart',e=>e.prev
     i.onload = i.onerror = checkDone;
     i.src = s;
   });
-  // Sécurité : si le chargement des images prend trop de temps ou échoue, on force l'affichage après 2 secondes max
   const safetyTimeout = setTimeout(() => {
     if(bar && bar.style.width !== '100%') {
       bar.style.width = '100%';
@@ -1063,3 +1070,4 @@ if(document.addEventListener){document.addEventListener('gesturestart',e=>e.prev
 })();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
+
