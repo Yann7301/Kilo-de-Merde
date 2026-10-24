@@ -228,6 +228,9 @@ body.shake{animation:shake .3s}
 .bslot:active{transform:scale(.95)}
 .bslot .c7.b{width:100%;height:100%;margin:0;border-radius:5px;font-size:18px}
 .bslot .c7.b i{font-size:11px}
+.pc{width:1.2em;height:1.2em;object-fit:contain;vertical-align:-.22em;display:inline-block;pointer-events:none}
+.chip .pc{width:18px;height:18px;vertical-align:middle}
+.it .pv .pc{width:44px;height:44px}
 </style></head><body>
 <header id="gh"><button class="ib" onclick="askQuit()">←</button><b id="rnd"></b><div id="pf" class="pf"></div><button class="ib sndb" onclick="toggleSnd()">🔊</button></header>
 <div id="room"></div><div id="opps"></div><div id="rings"></div><div id="fans"></div><div id="plates"></div><div id="pl" class="pl"><div id="tas" class="stk" onclick="tapBtn()"><i></i><i></i><i></i><b id="tasn">0</b></div>TAS DE MERDE</div><div id="mc"><div id="msg"></div></div><div id="lc"><button id="gv" onclick="giveSel()" style="display:none"></button></div>
@@ -248,7 +251,7 @@ body.shake{animation:shake .3s}
 </div>
 <div id="stage"></div><div id="toasts"></div><div id="bnr"></div>
 <div id="menu">
-<div id="topb"><div class="chip">🪙 <span id="coin">0</span> <button class="plus" onclick="openGold()" title="Or +">+</button></div><div id="pfm" class="chip"></div><span class="sp"></span><button class="ib sndb" onclick="toggleSnd()">🔊</button></div>
+<div id="topb"><div class="chip"><img class=pc src=piece.png> <span id="coin">0</span> <button class="plus" onclick="openGold()" title="Or +">+</button></div><div id="pfm" class="chip"></div><span class="sp"></span><button class="ib sndb" onclick="toggleSnd()">🔊</button></div>
 <div class="sp2"></div>
 <div id="hm1" class="mg">
 <div class="col"><button class="mb g big" onclick="showSolo()">▶ SOLO</button><button class="mb gr" disabled>🌐 MULTIJOUEURS</button><button class="mb pu" onclick="showStats()">🏆 STATISTIQUES</button><button class="mb bl" onclick="showRules()">📖 RÈGLES</button></div>
@@ -279,9 +282,9 @@ body.shake{animation:shake .3s}
 <h3>Fin de partie</h3><p>Après le nombre de manches choisi, chacun compte ses kilos. Le moins de kilos gagne ; celui qui en a le plus a le kilo de merde.</p>
 <h3>Récompenses</h3><p>Manche gagnée (seul le joueur qui valide la vraie tape gagne la récompense) : manche 1 = 10 XP et 10 or, manche 2 = 20, manche 3 = 30, manche 4 = 40, manche 5 = 50, manche 6 = 100. Feinte réussie : 5 XP et 2 or. Chasse d'eau : 1 XP et 1 or par carte évacuée. Classement final : le 1er gagne 500 XP et 200 or. À 5 ou 6 joueurs : 2e 200 XP et 50 or, 3e 100 XP et 20 or, les autres 30 XP et 20 or. À 4 joueurs : 2e 120 XP et 40 or, 3e 60 XP et 20 or, 4e 30 XP et 10 or. À 3 joueurs : 2e 100 XP et 30 or, 3e 30 XP et 10 or.</p></div><button class="sec" onclick="closeOv('rules')">Fermer</button></div>
 <div id="stats" class="ov"><div class="panel"><h2>STATISTIQUES</h2><div id="stbody"></div><div class="row2"><button class="sec" onclick="resetStats()">Réinitialiser</button><button class="sec" onclick="closeOv('stats')">Fermer</button></div></div></div>
-<div id="shop" class="ov"><div class="hd2"><h2>🛒 Magasin</h2><span class="chip">🪙 <b id="shg">0</b></span></div><div id="shtabs" class="tabs"></div><div id="shgrid"></div><p style="font-size:11px;opacity:.7">Prix provisoires, à ajuster.</p><button class="sec" onclick="closeOv('shop')">Fermer</button></div>
+<div id="shop" class="ov"><div class="hd2"><h2>🛒 Magasin</h2><span class="chip"><img class=pc src=piece.png> <b id="shg">0</b></span></div><div id="shtabs" class="tabs"></div><div id="shgrid"></div><p style="font-size:11px;opacity:.7">Prix provisoires, à ajuster.</p><button class="sec" onclick="closeOv('shop')">Fermer</button></div>
 <div id="bag" class="ov"><h2>👝 SAC BONUS</h2><p>Choisis tes bonus pour ta partie (jusqu'à 3 emplacements).</p><div id="bagl"></div><button class="sec" onclick="closeOv('bag')">Fermer</button></div>
-<div id="gold" class="ov"><h2>🪙 Or +</h2><div class="panel"><p>Regarde une publicité pour gagner de l'or.</p><div class="sr"><span>Pubs aujourd'hui</span><b id="adn"></b></div><button id="adb" class="mb g" onclick="watchAd()" style="text-align:center"></button></div><button class="sec" onclick="closeOv('gold')">Fermer</button></div>
+<div id="gold" class="ov"><h2><img class=pc src=piece.png> Or +</h2><div class="panel"><p>Regarde une publicité pour gagner de l'or.</p><div class="sr"><span>Pubs aujourd'hui</span><b id="adn"></b></div><button id="adb" class="mb g" onclick="watchAd()" style="text-align:center"></button></div><button class="sec" onclick="closeOv('gold')">Fermer</button></div>
 <div id="set" class="ov"><h2>⚙️ Paramètres</h2><div class="panel" id="setl"></div><button class="sec" onclick="closeOv('set')">Fermer</button></div>
 <div id="adv" class="ov" style="z-index:12"><h2>PUB DE TEST</h2><div id="adt" style="font-size:54px;font-weight:900;color:var(--gold)"></div><p>La vraie publicité (AdMob) s'affichera ici dans la version finale.</p></div>
 <div id="vote" class="ov"></div>
@@ -365,7 +368,7 @@ function gain(xp,gold,why){
   PF.xp+=xp;PF.gold+=gold;let up=0;
   while(PF.xp>=need(PF.lvl)){PF.xp-=need(PF.lvl);PF.lvl++;up=PF.lvl}
   Store.save(PF);pfRender();
-  toast((xp?'+'+xp+' XP · ':'')+'+'+gold+' 🪙 <small>'+why+'</small>');
+  toast((xp?'+'+xp+' XP · ':'')+'+'+gold+' <img class=pc src=piece.png> <small>'+why+'</small>');
   if(up)setTimeout(()=>levelReward(up),700);
 }
 function later(fn,ms){const e=ep,run=()=>{if(e!==ep)return;if(paused||fxp>0)return setTimeout(run,200);fn()};setTimeout(run,ms)}
@@ -391,7 +394,7 @@ function msg(t){$('msg').textContent=t}
 function banner(a,b,ms){const e=$('bnr');e.innerHTML='<div><b>'+a+'</b><br><small>'+b+'</small></div>';e.style.display='flex';setTimeout(()=>{e.style.display='none'},ms||2000)}
 function pfRender(){
   const n=need(PF.lvl),w=Math.round(PF.xp/n*100);
-  $('pf').innerHTML='<b>Niv '+PF.lvl+'</b><div class="bar"><i style="width:'+w+'%"></i></div><span>🪙 '+PF.gold+'</span>';
+  $('pf').innerHTML='<b>Niv '+PF.lvl+'</b><div class="bar"><i style="width:'+w+'%"></i></div><span><img class=pc src=piece.png> '+PF.gold+'</span>';
   $('pfm').innerHTML='<b>Niv '+PF.lvl+'</b><div class="bar"><i style="width:'+w+'%"></i></div><span>'+PF.xp+'/'+n+' XP</span>';
   $('coin').textContent=PF.gold;
 }
@@ -676,7 +679,7 @@ function finish(){
   PF.games++;if(win){PF.wins++;PF.streak++;PF.best=Math.max(PF.best,PF.streak)}else PF.streak=0;if(lose)PF.losses++;
   Store.save(PF);pfRender();
   lose?sLose():sWin();
-  $('over').innerHTML='<div class="fin"><img src="'+(lose?'fin_perdu.jpg':'fin_gagne.jpg')+'" alt=""><div class="fr"><h2>'+(win?'🏆 Tu as gagné !':lose?'💩 Tu es le kilo de merde !':'Tu échappes au kilo de merde !')+'</h2>'+t.map((x,i)=>'<div class="sr'+(x.p.me?' me':'')+'"><span>'+(x.k===mn?'🏆':x.k===mx&&mx>mn?'💩':(i+1)+'.')+' '+nm(x.p)+'</span><b>'+x.k+' kg</b></div>').join('')+'<div class="sr"><span>🛒 Classement : '+rl+'</span><b>+'+RW[0]+' XP · +'+RW[1]+' 🪙</b></div><div class="row2"><button class="sec" onclick="again()">Rejouer</button><button class="sec" onclick="showHome()">Accueil</button></div></div></div>';
+  $('over').innerHTML='<div class="fin"><img src="'+(lose?'fin_perdu.jpg':'fin_gagne.jpg')+'" alt=""><div class="fr"><h2>'+(win?'🏆 Tu as gagné !':lose?'💩 Tu es le kilo de merde !':'Tu échappes au kilo de merde !')+'</h2>'+t.map((x,i)=>'<div class="sr'+(x.p.me?' me':'')+'"><span>'+(x.k===mn?'🏆':x.k===mx&&mx>mn?'💩':(i+1)+'.')+' '+nm(x.p)+'</span><b>'+x.k+' kg</b></div>').join('')+'<div class="sr"><span>🛒 Classement : '+rl+'</span><b>+'+RW[0]+' XP · +'+RW[1]+' <img class=pc src=piece.png></b></div><div class="row2"><button class="sec" onclick="again()">Rejouer</button><button class="sec" onclick="showHome()">Accueil</button></div></div></div>';
   $('over').style.display='flex';render();
   setTimeout(()=>gain(RW[0],RW[1],'Classement : '+rl),900);
 }
@@ -905,7 +908,7 @@ function shop(t){
   shTab=t;$('shg').textContent=PF.gold;
   $('shtabs').innerHTML=[['sk','🙂 Personnages'],['bk','🂠 Dos de cartes'],['bo','🎁 Bonus'],['iap','💳 Or']].map(x=>'<button class="'+(t===x[0]?'on':'')+'" onclick="shop(\''+x[0]+'\')">'+x[1]+'</button>').join('');
   if(t==='iap'){
-    $('shgrid').innerHTML=[[500,'0,99 €'],[1200,'1,99 €'],[3000,'4,99 €'],[7000,'9,99 €']].map(x=>'<div class="it"><div class="pv" style="font-size:36px">🪙</div><b>'+x[0]+' or</b><small>'+x[1]+'</small><button disabled>Bientôt</button></div>').join('')+'<p style="width:100%;font-size:11px;opacity:.8">Achats intégrés (Google Play) : bientôt disponibles. Prix indicatifs.</p>';
+    $('shgrid').innerHTML=[[500,'0,99 €'],[1200,'1,99 €'],[3000,'4,99 €'],[7000,'9,99 €']].map(x=>'<div class="it"><div class="pv" style="font-size:36px"><img class=pc src=piece.png></div><b>'+x[0]+' or</b><small>'+x[1]+'</small><button disabled>Bientôt</button></div>').join('')+'<p style="width:100%;font-size:11px;opacity:.8">Achats intégrés (Google Play) : bientôt disponibles. Prix indicatifs.</p>';
     return;
   }
   const L=t==='sk'?SK:t==='bk'?BK:BO;
@@ -925,16 +928,16 @@ function shop(t){
       pv=x.id==='chasse'?'<div class="c7 b" style="width:46px;height:64px;margin:0;font-size:28px"><i>7</i>🚽<small>BONUS</small></div>':'<div style="font-size:38px">'+x.e+'</div>';
     }
     let act;
-    if(t==='bo')act=x.off?'<button disabled>Bientôt</button>':'<button onclick="buy(\'bo\',\''+id+'\')">🪙 '+x.p+'</button><small>En sac : '+(PF.bag[id]||0)+'</small>';
+    if(t==='bo')act=x.off?'<button disabled>Bientôt</button>':'<button onclick="buy(\'bo\',\''+id+'\')"><img class=pc src=piece.png> '+x.p+'</button><small>En sac : '+(PF.bag[id]||0)+'</small>';
     else if(PF.eq[t]===i)act='<button disabled>Équipé ✓</button>';
     else if(PF.own[t].includes(i))act='<button onclick="equip(\''+t+'\','+i+')">Équiper</button>';
-    else act='<button onclick="buy(\''+t+'\','+i+')">🪙 '+x.p+'</button>';
+    else act='<button onclick="buy(\''+t+'\','+i+')"><img class=pc src=piece.png> '+x.p+'</button>';
     return '<div class="it"><div class="pv">'+pv+'</div><b>'+x.n+'</b>'+(x.d?'<small>'+x.d+'</small>':'')+act+'</div>';
   }).join('');
 }
 function buy(t,id){
   const it=t==='sk'?SK[id]:t==='bk'?BK[id]:BO.find(x=>x.id===id);
-  if(PF.gold<it.p){toast("Pas assez d'or 🪙");return}
+  if(PF.gold<it.p){toast("Pas assez d'or <img class=pc src=piece.png>");return}
   PF.gold-=it.p;
   if(t==='bo')PF.bag[id]=(PF.bag[id]||0)+1;else{PF.own[t].push(id);PF.eq[t]=id;applyTheme();renderMyAvatar()}
   Store.save(PF);pfRender();sLevel();shop(t);
@@ -1008,14 +1011,14 @@ function useBonus(){
 }
 function levelReward(l){
   const r=Math.random();let t;
-  if(r<.5){const g=25*l;PF.gold+=g;t='+'+g+' 🪙'}
+  if(r<.5){const g=25*l;PF.gold+=g;t='+'+g+' <img class=pc src=piece.png>'}
   else if(r<.8){PF.bag.chasse=(PF.bag.chasse||0)+1;t="1 bonus 🚽 chasse d'eau (dans ton sac)"}
   else{const x=30*l;PF.xp+=x;t='+'+x+' XP'}
   Store.save(PF);pfRender();sLevel();
   toast('⭐ Niveau '+l+' ! 🎁 '+t,3600);
 }
 function openGold(){$('gold').style.display='flex';goldr()}
-function goldr(){const a=PF.ads;if(a.d!==today()){a.d=today();a.n=0}$('adn').textContent=a.n+' / '+ADN;$('adb').textContent=a.n>=ADN?'Reviens demain !':'▶ Regarder une pub (+'+ADG+' 🪙)';$('adb').disabled=a.n>=ADN}
+function goldr(){const a=PF.ads;if(a.d!==today()){a.d=today();a.n=0}$('adn').textContent=a.n+' / '+ADN;$('adb').innerHTML=a.n>=ADN?'Reviens demain !':'▶ Regarder une pub (+'+ADG+' <img class=pc src=piece.png>)';$('adb').disabled=a.n>=ADN}
 function showRewardedAd(done){
   const v=$('adv');v.style.display='flex';let t=5;$('adt').textContent=t;
   const iv=setInterval(()=>{t--;$('adt').textContent=t;if(t<=0){clearInterval(iv);v.style.display='none';done()}},1000);
