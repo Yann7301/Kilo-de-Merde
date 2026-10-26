@@ -25,6 +25,8 @@ st.textContent=
 document.head.appendChild(st);
 new Image().src=SHEET;
 
+/* >>> RÉGLAGE : nombre de cartes 7 chasse d'eau PAR COULEUR dans le tas (1 = 4 en tout, 2 = 8, 3 = 12, 4 = 16) <<< */
+var SEPT_PAR_COULEUR=3;
 var KC=[[2,4],[3,6],[4,6],[5,6],[6,6],[8,6],[9,6],[10,6],[11,3],[12,3],[13,3],[100,4]]; // [poids, exemplaires]
 var RP={12:0,11:1,10:2,1:3,2:4,3:5,4:6,5:7};
 function kIdx(c){
@@ -48,8 +50,8 @@ function skin(){
   if(me.s.length)fe.call(document.getElementById('flush').querySelectorAll('.c7'),function(el,i){if(me.s[i])sp(el,sevenIdx(me.s[i]))});
 }
 function buildTas(){
-  var t=[],i,k;
-  for(k=0;k<4;k++)t.push({r:6,s:k});
+  var t=[],i,j,k;
+  for(k=0;k<4;k++)for(j=0;j<SEPT_PAR_COULEUR;j++)t.push({r:6,s:k});
   KC.forEach(function(e){for(i=1;i<=e[1];i++)t.push({r:e[0]===100?0:e[0]-1,s:4,kid:'kilo_'+e[0]+'_'+i})});
   return shuf(t);
 }
@@ -80,8 +82,8 @@ function fixRules(){
   var hs=document.querySelectorAll('#rules h3'),i,h,p;
   for(i=0;i<hs.length;i++){
     h=hs[i];p=h.nextElementSibling;if(!p)continue;
-    if(h.textContent.indexOf('matériel')>-1)p.textContent='32 cartes de jeu (roi, dame, valet et 2 à 6 dans les 4 couleurs), 4 cartes 7 chasse d\'eau et 59 cartes kilo de merde, de 3 à 6 joueurs.';
-    if(h.textContent.indexOf('distribution')>-1&&p.nextElementSibling&&p.nextElementSibling.tagName==='UL'){var q=p.nextElementSibling.nextElementSibling;if(q&&q.tagName==='P')q.textContent='Le tas de merde, au milieu de la table, contient les 4 cartes 7 chasse d\'eau et les 59 cartes kilo de merde.'}
+    if(h.textContent.indexOf('matériel')>-1)p.textContent='32 cartes de jeu (roi, dame, valet et 2 à 6 dans les 4 couleurs), '+(4*SEPT_PAR_COULEUR)+' cartes 7 chasse d\'eau et 59 cartes kilo de merde, de 3 à 6 joueurs.';
+    if(h.textContent.indexOf('distribution')>-1&&p.nextElementSibling&&p.nextElementSibling.tagName==='UL'){var q=p.nextElementSibling.nextElementSibling;if(q&&q.tagName==='P')q.textContent='Le tas de merde, au milieu de la table, contient les '+(4*SEPT_PAR_COULEUR)+' cartes 7 chasse d\'eau et les 59 cartes kilo de merde.'}
     if(h.textContent.indexOf('chasse d')>-1)p.textContent='Si tu pioches un 7, tu tires la chasse d\'eau tout de suite : tous tes kilos de merde et le 7 retournent sous le tas de pioche. Si tu n\'as aucun kilo, le 7 retourne quand même sous le tas. Un bonus acheté au magasin ajoute un 7 spécial que tu gardes en réserve et peux utiliser quand tu veux.';
   }
 }
