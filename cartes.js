@@ -22,6 +22,18 @@ st.textContent=
 '#bot #myav{width:92px;height:92px}'+
 '#bot .avw .ring{width:106px;height:106px}'+
 '#bot .mt2{align-items:center;margin-top:-10px;position:relative;z-index:4}';
+st.textContent+=
+'#srt{display:none!important}'+
+'.c7.kdmc.bUse{box-shadow:0 0 0 2px var(--gold),0 0 10px 2px var(--gold)}'+
+'.c7.kdmc.tpArmed{animation:tpblink .5s infinite alternate}'+
+'.op.tpt{pointer-events:auto;cursor:pointer}'+
+'.op.tpt .avw2{border-radius:50%;animation:tpblink .55s infinite alternate}'+
+'@keyframes tpblink{from{box-shadow:0 0 0 3px #ff2d2d,0 0 8px 2px #ff2d2d88}to{box-shadow:0 0 0 6px #ff6b6b,0 0 26px 10px #ff2d2d}}'+
+'.tpb{position:absolute;top:4px;width:40px;height:60px;z-index:6;pointer-events:none;filter:drop-shadow(0 2px 3px #000a)}'+
+'.tpb.r{right:-26px;transform:rotate(8deg)}.tpb.l{left:-26px;transform:rotate(-8deg)}'+
+'#tpfx{position:fixed;inset:0;z-index:9;background:#000b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}'+
+'#tpfx video{width:min(420px,80vw);max-height:68vh;border-radius:14px;border:4px solid var(--gold);box-shadow:0 8px 30px #000;background:#07301a}'+
+'#tpfx p{margin:0;font-size:22px;font-weight:800;text-shadow:0 2px 6px #000}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -56,7 +68,7 @@ function skin(){
   fe.call(document.getElementById('hand').children,function(el,i){sp(el,handIdx(me.h[i]))});
   layoutHand();
   fe.call(document.getElementById('mym').children,function(el,i){if(k4[i])sp(el,kIdx(k4[i]))});
-  if(me.s.length)fe.call(document.getElementById('flush').querySelectorAll('.c7'),function(el,i){if(me.s[i])sp(el,sevenIdx(me.s[i]))});
+  renderTray();markOpponents();
 }
 function buildTas(){
   var t=[],i,j,k;
@@ -67,19 +79,19 @@ function buildTas(){
 // ----- nouvelle règle : un 7 pioché tire la chasse tout de suite (kilos + 7 sous le tas, même sans kilo)
 drawKilo=function(p){
   var c=G.tas.shift();if(!c)return{p:p};
-  if(c.r===6){var n=p.k.length;G.tas.push(c);Array.prototype.push.apply(G.tas,p.k);p.k=[];return{p:p,c:c,sv:1,fl:n}}
+  if(c.r===6){if(p.tp){G.tas.push(c);return{p:p,c:c,sv:1,fl:0,blocked:1}}var n=p.k.length;G.tas.push(c);Array.prototype.push.apply(G.tas,p.k);p.k=[];return{p:p,c:c,sv:1,fl:n}}
   p.k.push(c);return{p:p,c:c};
 };
 drawFor=function(list){
   var res=list.map(drawKilo);render();
   res.forEach(function(r,k){
     var who=r.p.me?'Tu pioches ':r.p.nm+' pioche ';
-    r.txt=!r.c?nm(r.p)+' : tas vide':r.sv?(r.p.me?'Tu pioches un 7 🚽 : ':r.p.nm+' pioche un 7 🚽 : ')+(r.fl>0?'chasse d\'eau, '+r.fl+' kilo'+(r.fl>1?'s':'')+' évacué'+(r.fl>1?'s':''):'aucun kilo à évacuer, le 7 retourne sous le tas'):who+R[r.c.r]+S[r.c.s]+' → +'+val(r.c)+' kg';
+    r.txt=!r.c?nm(r.p)+' : tas vide':r.sv?(r.p.me?'Tu pioches un 7 🚽 : ':r.p.nm+' pioche un 7 🚽 : ')+(r.blocked?'toilettes bouchées ! aucun kilo évacué, le 7 retourne sous le tas':r.fl>0?'chasse d\'eau, '+r.fl+' kilo'+(r.fl>1?'s':'')+' évacué'+(r.fl>1?'s':''):'aucun kilo à évacuer, le 7 retourne sous le tas'):who+R[r.c.r]+S[r.c.s]+' → +'+val(r.c)+' kg';
     setTimeout(function(){
       if(!r.c)return;
       fly($('tas'),r.p.me?$('myav'):$('op'+r.p.i),r.c);
       setTimeout(function(){
-        if(r.sv){if(r.fl>0)chasse(r.p,r.fl);else sLevel()}
+        if(r.sv){if(r.fl>0)chasse(r.p,r.fl);else if(r.blocked)sBah();else sLevel()}
         else{sBah();sPlop();if(r.p.me)vib(120)}
       },650);
     },k*350);
@@ -93,13 +105,123 @@ function fixRules(){
     h=hs[i];p=h.nextElementSibling;if(!p)continue;
     if(h.textContent.indexOf('matériel')>-1)p.textContent='32 cartes de jeu (roi, dame, valet et 2 à 6 dans les 4 couleurs), '+(4*SEPT_PAR_COULEUR)+' cartes 7 chasse d\'eau et 59 cartes kilo de merde, de 3 à 6 joueurs.';
     if(h.textContent.indexOf('distribution')>-1&&p.nextElementSibling&&p.nextElementSibling.tagName==='UL'){var q=p.nextElementSibling.nextElementSibling;if(q&&q.tagName==='P')q.textContent='Le tas de merde, au milieu de la table, contient les '+(4*SEPT_PAR_COULEUR)+' cartes 7 chasse d\'eau et les 59 cartes kilo de merde.'}
-    if(h.textContent.indexOf('chasse d')>-1)p.textContent='Si tu pioches un 7, tu tires la chasse d\'eau tout de suite : tous tes kilos de merde et le 7 retournent sous le tas de pioche. Si tu n\'as aucun kilo, le 7 retourne quand même sous le tas. Un bonus acheté au magasin ajoute un 7 spécial que tu gardes en réserve et peux utiliser quand tu veux.';
+    if(h.textContent.indexOf('chasse d')>-1){p.textContent='Si tu pioches un 7, tu tires la chasse d\'eau tout de suite : tous tes kilos de merde et le 7 retournent sous le tas de pioche. Si tu n\'as aucun kilo, le 7 retourne quand même sous le tas. Un bonus acheté au magasin ajoute un 7 spécial que tu gardes en réserve et peux utiliser quand tu veux.';
+      var h2=document.createElement('h3');h2.textContent='Bonus : papier toilette et ventouse';var p2=document.createElement('p');p2.textContent='Papier toilette : à ton tour, touche la carte puis un adversaire. Ses toilettes sont bouchées jusqu\'à la fin de la manche : il ne peut plus tirer la chasse d\'eau, et s\'il pioche un 7, le 7 retourne sous le tas sans évacuer ses kilos. Ventouse : à ton tour, retire le papier toilette qu\'on t\'a donné.';p.parentNode.insertBefore(h2,p.nextSibling);p.parentNode.insertBefore(p2,h2.nextSibling)}
   }
 }
 fixRules();
+
+// ===== BONUS : papier toilette (toilettes bouchées) et ventouse =====
+var BIDX={papier:2,ventouse:3,chasse:4};   // place des cartes bonus dans la planche
+BO[1]={id:'papier',n:'Papier toilette',e:'🧻',p:100,d:'Bouche les toilettes d\'un adversaire pendant la manche'};
+BO[2]={id:'ventouse',n:'Ventouse',e:'🪠',p:100,d:'Débouche tes toilettes'};   // prix provisoire
+function spriteHTML(i,w,h){
+  return '<div class="'+CL+'" style="display:inline-block;width:'+w+';height:'+h+';background-image:url('+SHEET+');background-size:1000% 1000%;background-position:'+((i%10)/9*100)+'% '+(Math.floor(i/10)/9*100)+'%"></div>';
+}
+function fixBonusPv(box,list){
+  var its=box.querySelectorAll('.it');
+  list.forEach(function(x,i){var pv=its[i]&&its[i].querySelector('.pv');if(pv&&x.id!=='chasse'&&BIDX[x.id]!==undefined)pv.innerHTML=spriteHTML(BIDX[x.id],'40px','60px')});
+}
+var inBag=function(x){return !x.off&&(PF.bag[x.id]||0)>0};
+var _shop=shop;shop=function(t){_shop(t);try{if(t==='bo')fixBonusPv($('shgrid'),BO)}catch(e){}};
+var _bag=bag;bag=function(){_bag();try{fixBonusPv($('bagl'),BO.filter(inBag))}catch(e){}};
+var _bsm=bagSelectMode;bagSelectMode=function(){_bsm();try{fixBonusPv($('bagl'),BO.filter(inBag))}catch(e){}};
+var _rbs=renderBonusSlots;renderBonusSlots=function(){_rbs();try{document.querySelectorAll('.bslot').forEach(function(el,i){var id=PF.selSlots[i];if(id&&id!=='chasse'&&BIDX[id]!==undefined)el.innerHTML=spriteHTML(BIDX[id],'100%','100%')})}catch(e){}};
+useBonus=function(){
+  if(!Array.isArray(PF.selSlots))PF.selSlots=[null,null,null];
+  var me=G.P[0];me.bn=me.bn||[];
+  PF.selSlots.forEach(function(id){
+    if(!id||!((PF.bag[id]||0)>0))return;
+    PF.bag[id]--;
+    if(id==='chasse'){me.s.push({r:6,s:Math.floor(Math.random()*4),b:1});toast('🚽 Bonus activé : un 7 chasse d\'eau en plus')}
+    else if(BIDX[id]!==undefined){me.bn.push({id:id});toast((id==='papier'?'🧻 Bonus papier toilette prêt':'🪠 Bonus ventouse prêt'))}
+  });
+  PF.selSlots=[null,null,null];Store.save(PF);renderBonusSlots();
+};
+// un joueur aux toilettes bouchées ne peut plus tirer la chasse
+var _flush=flush;flush=function(p){if(p&&p.tp)return false;return _flush(p)};
+// plateau des bonus (même endroit que le 7 bonus) : chaque carte est cliquable
+function usableNow(){return !!G&&G.phase==='turn'&&G.cur===0}
+(function(){var b=document.getElementById('flush');if(b&&b.tagName==='BUTTON'){var d=document.createElement('div');d.id='flush';d.className=b.className;b.parentNode.replaceChild(d,b)}})();
+function renderTray(){
+  var fb=document.getElementById('flush');if(!fb||!G||!G.P)return;
+  var me=G.P[0],its=[];
+  me.s.forEach(function(c){its.push({t:'chasse',idx:sevenIdx(c)})});
+  (me.bn||[]).forEach(function(b){if(BIDX[b.id]!==undefined)its.push({t:b.id,idx:BIDX[b.id]})});
+  fb.innerHTML='';
+  if(!its.length){fb.innerHTML='<div class="c7 e">🚽</div>';return}
+  its.forEach(function(x,i){
+    var d=document.createElement('div');d.className='c7';d.style.marginLeft=i?'-8px':'0px';sp(d,x.idx);
+    if(x.t==='papier'&&G.tpSel)d.classList.add('tpArmed');
+    else if((x.t==='chasse'&&OKP.indexOf(G.phase)>-1&&me.k.length&&!me.tp)||(x.t!=='chasse'&&usableNow()))d.classList.add('bUse');
+    d.onclick=function(e){e.stopPropagation();useBonusCard(x.t)};
+    fb.appendChild(d);
+  });
+}
+function useBonusCard(t){
+  if(!G||!G.P)return;au();var me=G.P[0];
+  if(t==='chasse'){
+    if(OKP.indexOf(G.phase)<0)return;
+    if(me.tp){toast('🧻 Toilettes bouchées ! Pas de chasse d\'eau jusqu\'à la fin de la manche');return}
+    if(!me.k.length){toast('Aucun kilo à évacuer');return}
+    flush(me);return;
+  }
+  if(!usableNow()){toast('Ce bonus s\'utilise pendant ton tour');return}
+  if(t==='papier'){
+    if(G.tpSel){G.tpSel=false;render();return}
+    if(!G.P.some(function(p){return !p.me&&!p.tp})){toast('Tous les adversaires ont déjà les toilettes bouchées');return}
+    G.tpSel=true;render();msg('🧻 Touche l\'adversaire à qui donner le papier toilette');return;
+  }
+  if(t==='ventouse'){
+    if(!me.tp){toast('🪠 Tu n\'as pas de papier toilette à retirer');return}
+    var k=me.bn.findIndex(function(b){return b.id==='ventouse'});if(k<0)return;
+    me.bn.splice(k,1);me.tp=null;sPlop();render();toast('🪠 Ventouse : tes toilettes sont débouchées !');
+  }
+}
+function sideOf(p){var q=SEATS[G.seats[p.i-1]];return (q[2]-q[0])>100?'l':'r'}
+function markOpponents(){
+  if(G.tpSel&&!usableNow())G.tpSel=false;
+  G.P.forEach(function(p){
+    if(p.me)return;var el=document.getElementById('op'+p.i);if(!el)return;
+    el.classList.toggle('tpt',!!G.tpSel&&!p.tp);
+    var old=el.querySelector('.tpb');if(old)old.remove();
+    if(p.tp){var b=document.createElement('div');b.className='tpb '+sideOf(p);sp(b,BIDX.papier);el.appendChild(b)}
+  });
+}
+document.addEventListener('click',function(e){
+  if(!G||!G.tpSel||!e.target.closest)return;
+  var el=e.target.closest('.op.tpt');if(!el)return;
+  var p=G.P[parseInt(el.id.slice(2),10)];if(p&&!p.me&&!p.tp)giveTP(p);
+},true);
+function fxAnim(done){
+  var ov=document.createElement('div');ov.id='tpfx';
+  ov.innerHTML='<video src="toilettes_bouchees.mp4" playsinline preload="auto"></video><p>🧻 Toilettes bouchées !</p>';
+  document.body.appendChild(ov);fxp++;var ended=false;
+  function end(){if(ended)return;ended=true;fxp--;ov.remove();done()}
+  var v=ov.querySelector('video');v.muted=!(PF.set&&PF.set.sound);
+  var pr=v.play();if(pr&&pr.catch)pr.catch(function(){v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){})});
+  v.onerror=function(){setTimeout(end,1200)};
+  v.ontimeupdate=function(){if(v.currentTime>=3.95)end()};
+  v.onended=end;setTimeout(end,4300);
+}
+function giveTP(p){
+  var me=G.P[0],k=(me.bn||[]).findIndex(function(b){return b.id==='papier'});if(k<0)return;
+  me.bn.splice(k,1);G.tpSel=false;G.tk=(G.tk||0)+1;clearRing();render();sWhoosh();
+  fxAnim(function(){
+    p.tp={round:G.round};render();sPlop();
+    msg('🧻 '+p.nm+' : toilettes bouchées jusqu\'à la fin de la manche !');toast('🧻 Toilettes bouchées pour '+p.nm+' !',2600);
+    if(G.phase==='turn'&&G.cur===0)startTimer();
+  });
+}
+// l'effet se termine à chaque nouvelle manche ; les bonus non utilisés retournent dans le sac à la fin de la partie
+var _sr=startRound;startRound=function(){try{G.P.forEach(function(p){p.tp=null});G.tpSel=false}catch(e){}_sr()};
+var _fin=finish;finish=function(){
+  try{if(G&&G.P&&!G.finalResultsApplied){var n=0;(G.P[0].bn||[]).forEach(function(b){PF.bag[b.id]=(PF.bag[b.id]||0)+1;n++});G.P[0].bn=[];if(n){Store.save(PF);setTimeout(function(){toast('👝 Bonus non utilisé : retourné dans ton sac',3000)},3400)}}}catch(e){}
+  _fin.apply(this,arguments);
+};
 // ----- branchement sur le jeu existant
 var _render=render;render=function(){_render.apply(this,arguments);try{skin()}catch(e){}};
-var _start=start;start=function(n){_start(n);try{G.tas=buildTas();render()}catch(e){}};
+var _start=start;start=function(n){_start(n);try{fetch('toilettes_bouchees.mp4').catch(function(){})}catch(e){}try{G.tas=buildTas();render()}catch(e){}};
 var _fly=fly;fly=function(a,b,c){
   var n=document.body.children.length;_fly(a,b,c);
   try{
