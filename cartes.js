@@ -14,10 +14,10 @@ st.textContent=
 '.c7.b{background:url('+SHEET+') 44.444% 0%/1000% 1000% no-repeat!important;border:0!important;color:transparent!important;font-size:0!important;width:40px;height:60px}'+
 '.c7.b i,.c7.b small{display:none}'+
 /* disposition du bas : joueur à gauche de la main, même taille que les autres joueurs */
-'#bot #me{flex:0 0 170px}'+
-'#bot #hw{flex-direction:row;align-items:flex-end;justify-content:center;gap:4px}'+
+'#bot #me{flex:0 0 162px}'+
+'#bot #hw{flex-direction:row;align-items:flex-end;justify-content:center;gap:0}'+
 '#bot #hand{min-width:0}'+
-'#bot .mrow{order:-1;flex-direction:column;align-items:center;gap:0;margin:0}'+
+'#bot .mrow{order:-1;flex:0 0 auto;flex-direction:column;align-items:center;gap:0;margin:0 22px 0 0}'+
 '#bot .avw{width:92px;height:92px}'+
 '#bot #myav{width:92px;height:92px}'+
 '#bot .avw .ring{width:106px;height:106px}'+
@@ -42,10 +42,19 @@ function sp(el,i){
   el.style.backgroundImage='url('+SHEET+')';el.style.backgroundSize='1000% 1000%';
   el.style.backgroundPosition=((i%10)/9*100)+'% '+(Math.floor(i/10)/9*100)+'%';
 }
+// resserre la main pour qu'elle ne touche jamais l'avatar (22 px de marge à droite de l'avatar)
+function layoutHand(){
+  var hw=document.getElementById('hw'),mr=document.querySelector('#bot .mrow'),hd=document.getElementById('hand');
+  if(!hw||!mr||!hd)return;
+  var cs=hd.children,n=cs.length,i;if(n<1)return;
+  var avail=hw.clientWidth-mr.offsetWidth-22,ov=n>1?Math.min(44,Math.max(10,(n*62-avail)/(n-1))):0;
+  for(i=0;i<n;i++){cs[i].style.marginLeft=(i?-ov:0)+'px';cs[i].style.marginRight='0px'}
+}
 function skin(){
   if(typeof G==='undefined'||!G||!G.P)return;
   var me=G.P[0],k4=me.k.slice(-4),fe=Array.prototype.forEach;
   fe.call(document.getElementById('hand').children,function(el,i){sp(el,handIdx(me.h[i]))});
+  layoutHand();
   fe.call(document.getElementById('mym').children,function(el,i){if(k4[i])sp(el,kIdx(k4[i]))});
   if(me.s.length)fe.call(document.getElementById('flush').querySelectorAll('.c7'),function(el,i){if(me.s[i])sp(el,sevenIdx(me.s[i]))});
 }
