@@ -292,5 +292,41 @@ var _fly=fly;fly=function(a,b,c){
     }
   }catch(x){}
 };
+
+// ===== retour dans l'appli (après avoir réduit le jeu) : recalcul de la mise en page + pause =====
+var lastBox=null,hiddenPause=false,refreshT=null,_bgBox=bgBox;
+bgBox=function(){   // taille d'écran invalide pendant le retour : on garde la dernière valeur correcte
+  var de=document.documentElement,W=de.clientWidth,H=de.clientHeight;
+  if(!(W>100&&H>100)){
+    var port=window.matchMedia&&matchMedia('(orientation:portrait)').matches;
+    W=port?innerHeight:innerWidth;H=port?innerWidth:innerHeight;
+  }
+  if(!(W>100&&H>100))return lastBox||_bgBox();
+  var sc=Math.max(W/2700,H/1152);lastBox={s:sc,ox:(W-2700*sc)/2,oy:(H-1152*sc)*.5};return lastBox;
+};
+function refreshView(){
+  if(typeof G==='undefined'||!G||!G.P)return;
+  try{
+    var rg=document.getElementById('rings');if(rg&&!rg.children.length&&G.n>1)buildRings();
+    render();
+    ['opps','fans','plates','rings','tpl'].forEach(function(id){var e=document.getElementById(id);if(e){e.style.display='none';void e.offsetHeight;e.style.display=''}});
+  }catch(e){}
+}
+function scheduleRefresh(){clearTimeout(refreshT);refreshT=setTimeout(refreshView,150);setTimeout(refreshView,900)}
+function backFromHidden(){
+  if(hiddenPause){
+    hiddenPause=false;
+    var qv=document.getElementById('qv');if(!(qv&&qv.style.display==='flex'))paused=false;
+    if(G&&G.P&&G.phase==='turn'&&G.cur===0){G.tk=(G.tk||0)+1;clearRing();startTimer()}   // ton chrono repart à zéro
+  }
+  scheduleRefresh();
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){if(G&&G.P&&G.phase!=='over'){hiddenPause=true;paused=true}}
+  else backFromHidden();
+});
+['pageshow','focus'].forEach(function(ev){window.addEventListener(ev,backFromHidden)});
+['resize','orientationchange','fullscreenchange'].forEach(function(ev){window.addEventListener(ev,scheduleRefresh)});
+if(window.visualViewport)visualViewport.addEventListener('resize',scheduleRefresh);
 try{if(typeof G!=='undefined'&&G&&G.P)render()}catch(e){}
 })();
