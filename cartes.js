@@ -295,12 +295,10 @@ var _fly=fly;fly=function(a,b,c){
 
 // ===== retour dans l'appli (après avoir réduit le jeu) : recalcul de la mise en page + pause =====
 var lastBox=null,hiddenPause=false,refreshT=null,_bgBox=bgBox;
-bgBox=function(){   // taille d'écran invalide pendant le retour : on garde la dernière valeur correcte
-  var de=document.documentElement,W=de.clientWidth,H=de.clientHeight;
-  if(!(W>100&&H>100)){
-    var port=window.matchMedia&&matchMedia('(orientation:portrait)').matches;
-    W=port?innerHeight:innerWidth;H=port?innerWidth:innerHeight;
-  }
+bgBox=function(){   // en portrait le jeu est tourné de 90° : largeur et hauteur de l'écran sont inversées
+  var de=document.documentElement,vw=de.clientWidth||innerWidth,vh=de.clientHeight||innerHeight;
+  var port=!!(window.matchMedia&&matchMedia('(orientation:portrait)').matches);
+  var W=port?vh:vw,H=port?vw:vh;
   if(!(W>100&&H>100))return lastBox||_bgBox();
   var sc=Math.max(W/2700,H/1152);lastBox={s:sc,ox:(W-2700*sc)/2,oy:(H-1152*sc)*.5};return lastBox;
 };
