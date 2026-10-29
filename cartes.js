@@ -29,8 +29,9 @@ st.textContent+=
 '.op.tpt{pointer-events:auto;cursor:pointer}'+
 '.op.tpt .avw2{border-radius:50%;animation:tpblink .55s infinite alternate}'+
 '@keyframes tpblink{from{box-shadow:0 0 0 3px #ff2d2d,0 0 8px 2px #ff2d2d88}to{box-shadow:0 0 0 6px #ff6b6b,0 0 26px 10px #ff2d2d}}'+
-'.tpb{position:absolute;top:4px;width:40px;height:60px;z-index:6;pointer-events:none;filter:drop-shadow(0 2px 3px #000a)}'+
-'.tpb.r{right:-26px;transform:rotate(8deg)}.tpb.l{left:-26px;transform:rotate(-8deg)}'+
+'#tpl{position:fixed;inset:0;pointer-events:none;z-index:4}'+
+'.tpb{position:absolute;width:40px;height:60px;pointer-events:none;filter:drop-shadow(0 2px 3px #000a)}'+
+'.tpb.r{transform:rotate(8deg)}.tpb.l{transform:rotate(-8deg)}'+
 '#tpfx{position:fixed;inset:0;z-index:9;background:#000b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}'+
 '#tpfx video{width:min(420px,80vw);max-height:68vh;border-radius:14px;border:4px solid var(--gold);box-shadow:0 8px 30px #000;background:#07301a}'+
 '#tpfx p{margin:0;font-size:22px;font-weight:800;text-shadow:0 2px 6px #000}';
@@ -174,45 +175,105 @@ function useBonusCard(t){
   }
   if(t==='ventouse'){
     if(!me.tp){toast('🪠 Tu n\'as pas de papier toilette à retirer');return}
-    var k=me.bn.findIndex(function(b){return b.id==='ventouse'});if(k<0)return;
-    me.bn.splice(k,1);me.tp=null;sPlop();render();toast('🪠 Ventouse : tes toilettes sont débouchées !');
+    useVentouse(me);
   }
 }
 function sideOf(p){var q=SEATS[G.seats[p.i-1]];return (q[2]-q[0])>100?'l':'r'}
 function markOpponents(){
   if(G.tpSel&&!usableNow())G.tpSel=false;
+  var L=document.getElementById('tpl');if(!L){L=document.createElement('div');L.id='tpl';document.body.appendChild(L)}
+  L.innerHTML='';var B=bgBox();
+  G.P.forEach(function(p){
+    if(!p.tp)return;var x,y,side;
+    if(p.me){
+      var r=document.querySelector('#bot .avw');if(!r)return;
+      var rc=r.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
+      if(matchMedia('(orientation:portrait)').matches){var t0=cx;cx=cy;cy=innerWidth-t0}
+      x=cx;y=cy;side='l';
+    }else{var q=SEATS[G.seats[p.i-1]];x=B.ox+B.s*q[0];y=B.oy+B.s*q[1];side=sideOf(p)}
+    var d=document.createElement('div');d.className='tpb '+side;sp(d,BIDX.papier);
+    d.style.left=(side==='l'?x-72:x+32)+'px';d.style.top=(y-42)+'px';L.appendChild(d);
+  });
+  var pts=document.querySelectorAll('#plates .pt');
+  G.P.filter(function(p){return !p.me}).forEach(function(p,i){
+    var n=(p.bn||[]).length+p.s.filter(function(c){return c.b}).length,el=pts[i];
+    if(el&&n>0&&!el.querySelector('.bn')){var x=document.createElement('span');x.className='kk bn';x.textContent='🎁'+n;el.appendChild(x)}
+  });
   G.P.forEach(function(p){
     if(p.me)return;var el=document.getElementById('op'+p.i);if(!el)return;
     el.classList.toggle('tpt',!!G.tpSel&&!p.tp);
-    var old=el.querySelector('.tpb');if(old)old.remove();
-    if(p.tp){var b=document.createElement('div');b.className='tpb '+sideOf(p);sp(b,BIDX.papier);el.appendChild(b)}
   });
 }
 document.addEventListener('click',function(e){
   if(!G||!G.tpSel||!e.target.closest)return;
   var el=e.target.closest('.op.tpt');if(!el)return;
-  var p=G.P[parseInt(el.id.slice(2),10)];if(p&&!p.me&&!p.tp)giveTP(p);
+  var p=G.P[parseInt(el.id.slice(2),10)];if(p&&!p.me&&!p.tp)giveTP(G.P[0],p);
 },true);
-function fxAnim(done){
+function fxAnim(done,src,caption){
   var ov=document.createElement('div');ov.id='tpfx';
-  ov.innerHTML='<video src="toilettes_bouchees.mp4" playsinline preload="auto"></video><p>🧻 Toilettes bouchées !</p>';
-  document.body.appendChild(ov);fxp++;var ended=false;
-  function end(){if(ended)return;ended=true;fxp--;ov.remove();done()}
+  ov.innerHTML='<video src="'+src+'" playsinline preload="auto"></video><p></p>';ov.querySelector('p').textContent=caption;
+  document.body.appendChild(ov);fxp++;var ended=false,e0=ep;
+  function end(){if(ended)return;ended=true;fxp--;ov.remove();if(e0===ep)done()}
   var v=ov.querySelector('video');v.muted=!(PF.set&&PF.set.sound);
   var pr=v.play();if(pr&&pr.catch)pr.catch(function(){v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){})});
   v.onerror=function(){setTimeout(end,1200)};
   v.ontimeupdate=function(){if(v.currentTime>=3.95)end()};
   v.onended=end;setTimeout(end,4300);
 }
-function giveTP(p){
-  var me=G.P[0],k=(me.bn||[]).findIndex(function(b){return b.id==='papier'});if(k<0)return;
-  me.bn.splice(k,1);G.tpSel=false;G.tk=(G.tk||0)+1;clearRing();render();sWhoosh();
+function tpCaption(from,t){return from.me?'🧻 Tu bouches les toilettes de '+t.nm+' !':t.me?'🧻 '+from.nm+' bouche tes toilettes !':'🧻 '+from.nm+' bouche les toilettes de '+t.nm+' !'}
+// donne le papier toilette (joueur ou IA) : animation, puis les toilettes de la cible sont bouchées jusqu'à la fin de la manche
+function giveTP(from,t){
+  var k=(from.bn||[]).findIndex(function(b){return b.id==='papier'});if(k<0)return false;
+  from.bn.splice(k,1);G.tpSel=false;
+  if(from.me){G.tk=(G.tk||0)+1;clearRing()}
+  render();sWhoosh();
   fxAnim(function(){
-    p.tp={round:G.round};render();sPlop();
-    msg('🧻 '+p.nm+' : toilettes bouchées jusqu\'à la fin de la manche !');toast('🧻 Toilettes bouchées pour '+p.nm+' !',2600);
-    if(G.phase==='turn'&&G.cur===0)startTimer();
+    t.tp={round:G.round};render();sPlop();
+    msg(tpCaption(from,t)+' (jusqu\'à la fin de la manche)');
+    toast(t.me?'🧻 '+from.nm+' t\'a donné le papier toilette : tes toilettes sont bouchées jusqu\'à la fin de la manche !':'🧻 Toilettes bouchées pour '+t.nm+' !',3200);
+    if(from.me){if(G.phase==='turn'&&G.cur===0)startTimer()}else later(aiTurn,500);
+  },'toilettes_bouchees.mp4',tpCaption(from,t));
+  return true;
+}
+// ventouse (joueur ou IA) : retire le papier toilette que l'on a reçu
+function useVentouse(p){
+  var k=(p.bn||[]).findIndex(function(b){return b.id==='ventouse'});if(k<0||!p.tp)return false;
+  p.bn.splice(k,1);
+  if(p.me){G.tk=(G.tk||0)+1;clearRing()}
+  render();sWhoosh();
+  var cap='🪠 '+(p.me?'Tu débouches tes toilettes':p.nm+' débouche ses toilettes')+' !';
+  fxAnim(function(){
+    p.tp=null;render();sPlop();msg(cap);toast(cap,2600);
+    if(p.me){if(G.phase==='turn'&&G.cur===0)startTimer()}else later(aiTurn,500);
+  },'ventouse.mp4',cap);
+  return true;
+}
+// ----- les IA ont aussi des bonus et les utilisent pendant leur tour
+var AI_BONUS_CHANCE=.5;   // chance par emplacement (2 emplacements par IA) d'avoir un bonus
+function giveAIBonus(){
+  G.P.forEach(function(p){
+    if(p.me)return;p.bn=[];
+    for(var i=0;i<2;i++){
+      if(Math.random()>=AI_BONUS_CHANCE)continue;
+      var r=Math.random(),id=r<.4?'papier':r<.7?'ventouse':'chasse';
+      if(id==='chasse')p.s.push({r:6,s:Math.floor(Math.random()*4),b:1});else p.bn.push({id:id});
+    }
   });
 }
+function aiBonus(p){
+  var bn=p.bn||[];if(!bn.length)return false;
+  var hasV=bn.some(function(b){return b.id==='ventouse'}),hasP=bn.some(function(b){return b.id==='papier'});
+  if(p.tp&&hasV&&Math.random()<.9)return useVentouse(p);
+  if(hasP){
+    var c=G.P.filter(function(q){return q!==p&&!q.tp});
+    if(c.length){
+      c.sort(function(x,y){return kil(y)-kil(x)||Math.random()-.5});
+      if((kil(c[0])>=8&&Math.random()<.7)||Math.random()<.12)return giveTP(p,c[0]);
+    }
+  }
+  return false;
+}
+var _aiTurn=aiTurn;aiTurn=function(){var p=G.P[G.cur];if(p&&!p.me&&aiBonus(p))return;_aiTurn()};
 // l'effet se termine à chaque nouvelle manche ; les bonus non utilisés retournent dans le sac à la fin de la partie
 var _sr=startRound;startRound=function(){try{G.P.forEach(function(p){p.tp=null});G.tpSel=false}catch(e){}_sr()};
 var _fin=finish;finish=function(){
@@ -221,7 +282,7 @@ var _fin=finish;finish=function(){
 };
 // ----- branchement sur le jeu existant
 var _render=render;render=function(){_render.apply(this,arguments);try{skin()}catch(e){}};
-var _start=start;start=function(n){_start(n);try{fetch('toilettes_bouchees.mp4').catch(function(){})}catch(e){}try{G.tas=buildTas();render()}catch(e){}};
+var _start=start;start=function(n){_start(n);try{['toilettes_bouchees.mp4','ventouse.mp4'].forEach(function(u){fetch(u).catch(function(){})})}catch(e){}try{G.tas=buildTas();giveAIBonus();render()}catch(e){}};
 var _fly=fly;fly=function(a,b,c){
   var n=document.body.children.length;_fly(a,b,c);
   try{
