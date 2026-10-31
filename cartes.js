@@ -38,6 +38,11 @@ st.textContent+=
 st.textContent+='.tf i{width:32px!important;height:46px!important;left:-16px!important;top:-23px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:none}';
 /* tas de pioche : angle de la diagonale (degrés) et descente (px) */
 var PILE_ANGLE=-28,PILE_DOWN=14;
+/* nouvelle table (table2.jpg) : repères en pixels de l'image 1376 x 768 ; places = [avatar x, y, cartes x, y] (croix noires et jaunes) */
+var TBL={w:1376,h:768,cx:688,cy:428};
+[[1205,438,1064,457],[1040,226,970,322],[692,210,709,307],[355,238,404,323],[186,428,336,467]].forEach(function(q,i){SEATS[i]=q});
+st.textContent+='body{background:#1a1410 url(table2.jpg) 50% 50%/cover no-repeat!important}';
+new Image().src='table2.jpg';
 st.textContent+='#tas.stk{width:66px;height:46px;filter:drop-shadow(0 6px 6px #000b)}'+
 '#pl{margin-top:'+PILE_DOWN+'px}'+
 '#tas b{display:none!important}'+
@@ -77,7 +82,7 @@ function skin(){
   fe.call(document.getElementById('hand').children,function(el,i){sp(el,handIdx(me.h[i]))});
   layoutHand();
   fe.call(document.getElementById('mym').children,function(el,i){if(k4[i])sp(el,kIdx(k4[i]))});
-  renderTray();markOpponents();layoutFans();renderPile();
+  renderTray();markOpponents();layoutFans();placePile();renderPile();
 }
 function buildTas(){
   var t=[],i,j,k;
@@ -291,10 +296,10 @@ var _fin=finish;finish=function(){
 
 // ===== mains des adversaires : éventail façon UNO (dos des cartes bien visibles) =====
 // réglages par place autour de la table (poussée, rotation en degrés, décalage) pour que les mains de joueurs voisins ne se touchent jamais
-var FANCFG={1:{push:10,rot:30,lat:14},3:{push:30,rot:-30,lat:-14}};
+var FANCFG={0:{push:0,rot:0,lat:14},1:{push:10,rot:0,lat:28},2:{push:10,rot:0,lat:0},3:{push:40,rot:0,lat:-28},4:{push:0,rot:-15,lat:-14}};
 function layoutFans(){
   if(typeof G==='undefined'||!G||!G.P)return;
-  var sc=Math.min(1.5,Math.max(.8,bgBox().s/.3125));
+  var sc=Math.min(1.2,Math.max(.85,bgBox().s/.547));
   G.P.forEach(function(p){
     if(p.me)return;var f=document.getElementById('fan'+p.i);if(!f)return;
     var seat=G.seats[p.i-1],q=SEATS[seat],c=FANCFG[seat]||{push:0,rot:0,lat:0};
@@ -325,6 +330,10 @@ give1=function(i,k){
 
 // ===== tas de pioche horizontal, plus épais, qui s'amincit quand on pioche =====
 function pr(i,k){var v=Math.sin(i*12.9898+k*78.233)*43758.5453;return v-Math.floor(v)}
+function placePile(){   // le tas au centre de la nouvelle table
+  var B=bgBox(),px=B.ox+B.s*TBL.cx,py=B.oy+B.s*TBL.cy,a=document.getElementById('pl'),m=document.getElementById('mc'),l=document.getElementById('lc');
+  if(a){a.style.left=px+'px';a.style.top=py+'px'}if(m){m.style.left=(px+112)+'px';m.style.top=py+'px'}if(l){l.style.left=(px-112)+'px';l.style.top=py+'px'}
+}
 function renderPile(){
   var t=document.getElementById('tas');if(typeof G==='undefined'||!t||!G||!G.tas)return;
   Array.prototype.slice.call(t.children).forEach(function(e){if(e.tagName==='I')e.remove()});   // anciennes cartes de l'ancien tas
@@ -359,7 +368,7 @@ bgBox=function(){   // en portrait le jeu est tourné de 90° : largeur et haute
   var port=!!(window.matchMedia&&matchMedia('(orientation:portrait)').matches);
   var W=port?vh:vw,H=port?vw:vh;
   if(!(W>100&&H>100))return lastBox||_bgBox();
-  var sc=Math.max(W/2700,H/1152);lastBox={s:sc,ox:(W-2700*sc)/2,oy:(H-1152*sc)*.5};return lastBox;
+  var sc=Math.max(W/TBL.w,H/TBL.h);lastBox={s:sc,ox:(W-TBL.w*sc)/2,oy:(H-TBL.h*sc)*.5};return lastBox;
 };
 function refreshView(){
   if(typeof G==='undefined'||!G||!G.P)return;
