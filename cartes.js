@@ -36,10 +36,13 @@ st.textContent+=
 '#tpfx video{width:min(420px,80vw);max-height:68vh;border-radius:14px;border:4px solid var(--gold);box-shadow:0 8px 30px #000;background:#07301a}'+
 '#tpfx p{margin:0;font-size:22px;font-weight:800;text-shadow:0 2px 6px #000}';
 st.textContent+='.tf i{width:32px!important;height:46px!important;left:-16px!important;top:-23px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:none}';
-st.textContent+='#tas.stk{width:66px;height:46px}'+
-'#tas .tasl{position:absolute;left:50%;top:50%;width:46px;height:66px;margin:-33px 0 0 -23px;transform:rotate(90deg)}'+
-'#tas .tasl i{border-width:2px;box-shadow:0 1px 2px #0009}'+
-'#tas .tasl i:first-child{box-shadow:0 7px 14px #000d}';
+/* tas de pioche : angle de la diagonale (degrés) et descente (px) */
+var PILE_ANGLE=-28,PILE_DOWN=14;
+st.textContent+='#tas.stk{width:66px;height:46px;filter:drop-shadow(0 6px 6px #000b)}'+
+'#pl{margin-top:'+PILE_DOWN+'px}'+
+'#tas b{display:none!important}'+
+'#tas .tasl{position:absolute;left:50%;top:50%;width:46px;height:66px;margin:-33px 0 0 -23px;transform:rotate('+(90+PILE_ANGLE)+'deg)}'+
+'#tas .tasl i{border-width:2px;box-shadow:0 1px 2px #0009}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -330,8 +333,8 @@ function renderPile(){
   if(w.getAttribute('data-n')===String(n))return;
   w.setAttribute('data-n',n);w.innerHTML='';
   for(var i=0;i<n;i++){
-    var d=document.createElement('i'),top=i===n-1,j=top?.25:1;
-    var x=(i-(n-1))*.95+(pr(i,1)-.5)*2.6*j,y=(pr(i,2)-.5)*3*j,a=(pr(i,3)-.5)*7*j;
+    var d=document.createElement('i'),top=i===n-1,j=top?.25:1,dep=(n-1-i)*1.0;   // les cartes du dessous dépassent vers le bas de l'écran, face au joueur
+    var R=(90+PILE_ANGLE)*Math.PI/180,x=dep*Math.sin(R)+(pr(i,1)-.5)*2.6*j,y=dep*Math.cos(R)+(pr(i,2)-.5)*3*j,a=(pr(i,3)-.5)*7*j;
     d.style.transform='translate('+x.toFixed(2)+'px,'+y.toFixed(2)+'px) rotate('+a.toFixed(2)+'deg)';
     w.appendChild(d);
   }
