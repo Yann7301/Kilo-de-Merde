@@ -35,7 +35,7 @@ st.textContent+=
 '#tpfx{position:fixed;inset:0;z-index:9;background:#000b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}'+
 '#tpfx video{width:min(420px,80vw);max-height:68vh;border-radius:14px;border:4px solid var(--gold);box-shadow:0 8px 30px #000;background:#07301a}'+
 '#tpfx p{margin:0;font-size:22px;font-weight:800;text-shadow:0 2px 6px #000}';
-st.textContent+='.tf i{width:36px!important;height:52px!important;left:-18px!important;top:-26px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:transform .3s ease,filter .3s ease}';
+st.textContent+='.tf i{width:32px!important;height:46px!important;left:-16px!important;top:-23px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:none}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -283,18 +283,22 @@ var _fin=finish;finish=function(){
 };
 
 // ===== mains des adversaires : éventail façon UNO (dos des cartes bien visibles) =====
+// réglages par place autour de la table (poussée, rotation en degrés, décalage) pour que les mains de joueurs voisins ne se touchent jamais
+var FANCFG={1:{push:10,rot:30,lat:14},3:{push:30,rot:-30,lat:-14}};
 function layoutFans(){
   if(typeof G==='undefined'||!G||!G.P)return;
+  var sc=Math.min(1.5,Math.max(.8,bgBox().s/.3125));
   G.P.forEach(function(p){
     if(p.me)return;var f=document.getElementById('fan'+p.i);if(!f)return;
-    var q=SEATS[G.seats[p.i-1]],dx=q[2]-q[0],dy=q[3]-q[1],len=Math.sqrt(dx*dx+dy*dy)||1,nx=dx/len,ny=dy/len;
-    var ux=-ny,uy=nx,ang=Math.atan2(ny,nx)*180/Math.PI-90;
-    var cs=f.children,n=cs.length,gap=n>5?15:17,pick=(G.pick&&G.pick.i===p.i)?G.pick.idx:-1,i,t,lat,al,x,y;
+    var seat=G.seats[p.i-1],q=SEATS[seat],c=FANCFG[seat]||{push:0,rot:0,lat:0};
+    var a0=Math.atan2(q[3]-q[1],q[2]-q[0])+c.rot*Math.PI/180,nx=Math.cos(a0),ny=Math.sin(a0),ux=-ny,uy=nx,ang=a0*180/Math.PI-90;
+    var cs=f.children,n=cs.length,gap=11,pick=(G.pick&&G.pick.i===p.i)?G.pick.idx:-1,i,t,lat,al,x,y;
     for(i=0;i<n;i++){
-      t=i-(n-1)/2;lat=t*gap;al=14-lat*lat*.0036;            // éventail : bords un peu plus près du joueur
-      x=ux*lat+nx*al;y=uy*lat+ny*al;
-      if(i===pick){x+=nx*32;y+=ny*32}                         // carte choisie : sortie de l'éventail, dos visible
-      cs[i].style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) rotate('+(ang+t*7).toFixed(1)+'deg)'+(i===pick?' scale(1.12)':'');
+      t=i-(n-1)/2;lat=t*gap;al=14+c.push-lat*lat*.0036;       // éventail : bords un peu plus près du joueur
+      x=(ux*(lat+c.lat)+nx*al)*sc;y=(uy*(lat+c.lat)+ny*al)*sc;
+      if(i===pick){x+=nx*30*sc;y+=ny*30*sc}                    // carte choisie : sortie de l'éventail, dos visible
+      cs[i].style.transition=pick>=0?'transform .3s ease,filter .3s ease':'none';
+      cs[i].style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) rotate('+(ang+t*6).toFixed(1)+'deg) scale('+(sc*(i===pick?1.12:1)).toFixed(3)+')';
       cs[i].style.zIndex=i===pick?30:i;
       cs[i].style.filter=i===pick?'drop-shadow(0 0 9px #ffd34d)':'';
     }
