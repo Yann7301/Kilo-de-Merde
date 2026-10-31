@@ -36,6 +36,10 @@ st.textContent+=
 '#tpfx video{width:min(420px,80vw);max-height:68vh;border-radius:14px;border:4px solid var(--gold);box-shadow:0 8px 30px #000;background:#07301a}'+
 '#tpfx p{margin:0;font-size:22px;font-weight:800;text-shadow:0 2px 6px #000}';
 st.textContent+='.tf i{width:32px!important;height:46px!important;left:-16px!important;top:-23px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:none}';
+st.textContent+='#tas.stk{width:66px;height:46px}'+
+'#tas .tasl{position:absolute;left:50%;top:50%;width:46px;height:66px;margin:-33px 0 0 -23px;transform:rotate(90deg)}'+
+'#tas .tasl i{border-width:2px;box-shadow:0 1px 2px #0009}'+
+'#tas .tasl i:first-child{box-shadow:0 7px 14px #000d}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -70,7 +74,7 @@ function skin(){
   fe.call(document.getElementById('hand').children,function(el,i){sp(el,handIdx(me.h[i]))});
   layoutHand();
   fe.call(document.getElementById('mym').children,function(el,i){if(k4[i])sp(el,kIdx(k4[i]))});
-  renderTray();markOpponents();layoutFans();
+  renderTray();markOpponents();layoutFans();renderPile();
 }
 function buildTas(){
   var t=[],i,j,k;
@@ -315,6 +319,23 @@ give1=function(i,k){
     _give1(i,k);
   },600);
 };
+
+// ===== tas de pioche horizontal, plus épais, qui s'amincit quand on pioche =====
+function pr(i,k){var v=Math.sin(i*12.9898+k*78.233)*43758.5453;return v-Math.floor(v)}
+function renderPile(){
+  var t=document.getElementById('tas');if(typeof G==='undefined'||!t||!G||!G.tas)return;
+  Array.prototype.slice.call(t.children).forEach(function(e){if(e.tagName==='I')e.remove()});   // anciennes cartes de l'ancien tas
+  var n=Math.max(3,Math.min(12,Math.round(G.tas.length/6))),w=t.querySelector('.tasl');
+  if(!w){w=document.createElement('div');w.className='tasl';t.insertBefore(w,t.firstChild)}
+  if(w.getAttribute('data-n')===String(n))return;
+  w.setAttribute('data-n',n);w.innerHTML='';
+  for(var i=0;i<n;i++){
+    var d=document.createElement('i'),top=i===n-1,j=top?.25:1;
+    var x=(i-(n-1))*.95+(pr(i,1)-.5)*2.6*j,y=(pr(i,2)-.5)*3*j,a=(pr(i,3)-.5)*7*j;
+    d.style.transform='translate('+x.toFixed(2)+'px,'+y.toFixed(2)+'px) rotate('+a.toFixed(2)+'deg)';
+    w.appendChild(d);
+  }
+}
 // ----- branchement sur le jeu existant
 var _render=render;render=function(){_render.apply(this,arguments);try{skin()}catch(e){}};
 var _start=start;start=function(n){_start(n);try{['toilettes_bouchees.mp4','ventouse.mp4'].forEach(function(u){fetch(u).catch(function(){})})}catch(e){}try{G.tas=buildTas();giveAIBonus();render()}catch(e){}};
