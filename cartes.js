@@ -37,15 +37,16 @@ st.textContent+=
 '#tpfx p{margin:0;font-size:22px;font-weight:800;text-shadow:0 2px 6px #000}';
 st.textContent+='.tf i{width:30px!important;height:43px!important;left:-15px!important;top:-21.5px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:none}';
 /* tas de pioche : angle de la diagonale (degrés) et descente (px) */
-var PILE_ANGLE=-28,PILE_DOWN=14;
+var PILE_ANGLE=-28,PILE_DOWN=4;
 /* nouvelle table (table2.jpg) : repères en pixels de l'image 1376 x 768 ; places = [avatar x, y, cartes x, y] ; avatars sur les couvercles des toilettes */
 var TBL={w:1376,h:768,cx:688,cy:428};
-[[1255,375,1151,357],[1085,160,1016,296],[688,150,687,278],[310,160,380,296],[125,372,245,375]].forEach(function(q,i){SEATS[i]=q});
+[[1255,375,1155,402],[1085,160,1009,265],[688,150,687,252],[310,160,373,265],[125,372,248,421]].forEach(function(q,i){SEATS[i]=q});
 st.textContent+='body{background:#1a1410 url(table2.jpg) 50% 50%/cover no-repeat!important}';
 new Image().src='table2.jpg';
 st.textContent+='#tas.stk{width:66px;height:46px;filter:drop-shadow(0 6px 6px #000b)}'+
 '#pl{margin-top:'+PILE_DOWN+'px}'+
 '#tas b{display:none!important}'+
+'#fans{z-index:1}#plates{z-index:2}'+
 '#tas .tasl{position:absolute;left:50%;top:50%;width:46px;height:66px;margin:-33px 0 0 -23px;transform:rotate('+(90+PILE_ANGLE)+'deg)}'+
 '#tas .tasl i{border-width:2px;box-shadow:0 1px 2px #0009}';
 document.head.appendChild(st);
@@ -296,7 +297,7 @@ var _fin=finish;finish=function(){
 
 // ===== mains des adversaires : éventail façon UNO (dos des cartes bien visibles) =====
 // réglages par place autour de la table (poussée, rotation en degrés, décalage) pour que les mains de joueurs voisins ne se touchent jamais
-var FANCFG={0:{push:0,rot:0,lat:0},1:{push:0,rot:-15,lat:14},2:{push:0,rot:0,lat:0},3:{push:0,rot:15,lat:-14},4:{push:0,rot:0,lat:-14}};
+var FANCFG={0:{push:0,rot:0,lat:0},1:{push:0,rot:0,lat:0},2:{push:0,rot:0,lat:0},3:{push:0,rot:-15,lat:0},4:{push:0,rot:0,lat:0}};
 function layoutFans(){
   if(typeof G==='undefined'||!G||!G.P)return;
   var sc=Math.min(1.2,Math.max(.85,bgBox().s/.547));
