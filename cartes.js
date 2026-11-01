@@ -231,8 +231,8 @@ function fxAnim(done,src,caption){
   var v=ov.querySelector('video');v.muted=!(PF.set&&PF.set.sound);
   var pr=v.play();if(pr&&pr.catch)pr.catch(function(){v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){})});
   v.onerror=function(){setTimeout(end,1200)};
-  v.ontimeupdate=function(){if(v.currentTime>=3.95)end()};
-  v.onended=end;setTimeout(end,4300);
+  v.ontimeupdate=function(){if(v.currentTime>=4.45)end()};
+  v.onended=end;setTimeout(end,5000);
 }
 function tpCaption(from,t){return from.me?'🧻 Tu bouches les toilettes de '+t.nm+' !':t.me?'🧻 '+from.nm+' bouche tes toilettes !':'🧻 '+from.nm+' bouche les toilettes de '+t.nm+' !'}
 // donne le papier toilette (joueur ou IA) : animation, puis les toilettes de la cible sont bouchées jusqu'à la fin de la manche
