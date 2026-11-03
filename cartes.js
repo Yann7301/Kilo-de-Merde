@@ -144,8 +144,23 @@ function fixBonusPv(box,list){
 }
 var inBag=function(x){return !x.off&&(PF.bag[x.id]||0)>0};
 var _shop=shop;shop=function(t){_shop(t);try{if(t==='bo')fixBonusPv($('shgrid'),BO)}catch(e){}};
-var _bag=bag;bag=function(){_bag();try{fixBonusPv($('bagl'),BO.filter(inBag))}catch(e){}};
-var _bsm=bagSelectMode;bagSelectMode=function(){_bsm();try{fixBonusPv($('bagl'),BO.filter(inBag))}catch(e){}};
+var _bag=bag;bag=function(){_bag();try{
+  fixBonusPv($('bagl'),BO.filter(inBag));
+  Array.prototype.forEach.call($('bagl').querySelectorAll('button'),function(x){x.remove()});   // plus de choix ici : on choisit ses bonus au début de la partie
+  var pp=document.querySelector('#bag p');if(pp)pp.textContent='Voici tes bonus. Tu les choisis au début de chaque partie, dans les 3 emplacements.';
+}catch(e){}};
+var _bsm=bagSelectMode;bagSelectMode=function(){_bsm();try{
+  var L=BO.filter(inBag),its=$('bagl').querySelectorAll('.it');
+  fixBonusPv($('bagl'),L);
+  L.forEach(function(x,i){
+    var it=its[i];if(!it)return;
+    var bt=it.querySelector('button');if(bt)bt.textContent='Choisir cette carte';
+    if(bt&&bt.disabled)return;
+    it.style.cursor='pointer';
+    it.onclick=function(e){if(e.target.closest&&e.target.closest('button'))return;assignBonusToSlot(x.id)};   // toucher l'image choisit aussi la carte
+  });
+  var pp=document.querySelector('#bag p');if(pp)pp.textContent='Touche une carte (ou « Choisir cette carte ») pour la mettre dans cet emplacement.';
+}catch(e){}};
 var _rbs=renderBonusSlots;renderBonusSlots=function(){_rbs();try{document.querySelectorAll('.bslot').forEach(function(el,i){var id=PF.selSlots[i];if(id&&id!=='chasse'&&BIDX[id]!==undefined)el.innerHTML=spriteHTML(BIDX[id],'100%','100%')})}catch(e){}};
 useBonus=function(){
   if(!Array.isArray(PF.selSlots))PF.selSlots=[null,null,null];
@@ -300,35 +315,35 @@ function useVentouse(p){
   return true;
 }
 // ----- les IA ont aussi des bonus et les utilisent pendant leur tour
-var AI_BONUS_CHANCE=.5;   // au départ : chance par emplacement (2 emplacements par IA) d'avoir un bonus
-var AI_ROUND_BONUS=.4;    // à chaque nouvelle manche : chance qu'une IA qui a moins de 2 bonus en reçoive un nouveau
-var AI_USE=.4;            // à chacun de ses tours : chance qu'une IA utilise un bonus qu'elle possède
+var AI_SLOTS=3,AI_BONUS_CHANCE=.6;   // comme toi : chaque IA choisit ses bonus au début de la partie (3 emplacements)
+var AI_USE=.4;                         // chance d'utiliser un bonus d'attaque à un tour où elle y est autorisée
 function randomBonusId(){var r=Math.random();return r<.3?'papier':r<.6?'mouche':r<.8?'chasse':r<.9?'ventouse':'insecticide'}
 function addBonus(p,id){if(id==='chasse')p.s.push({r:6,s:Math.floor(Math.random()*4),b:1});else(p.bn=p.bn||[]).push({id:id})}
-function nbBonus(p){return(p.bn||[]).length+p.s.filter(function(c){return c.b}).length}
 function giveAIBonus(){
   G.P.forEach(function(p){
-    if(p.me)return;p.bn=[];
-    for(var i=0;i<2;i++)if(Math.random()<AI_BONUS_CHANCE)addBonus(p,randomBonusId());
+    if(p.me)return;p.bn=[];p.used=0;p.ou=0;p.tr=0;
+    for(var i=0;i<AI_SLOTS;i++)if(Math.random()<AI_BONUS_CHANCE)addBonus(p,randomBonusId());
+    p.n0=p.bn.filter(function(b){return b.id==='papier'||b.id==='mouche'}).length;   // bonus d'attaque à répartir sur les manches
   });
 }
-function refillAIBonus(){G.P.forEach(function(p){if(!p.me&&nbBonus(p)<2&&Math.random()<AI_ROUND_BONUS)addBonus(p,randomBonusId())})}
 function aiBonus(p){
   var bn=p.bn||[],has=function(id){return bn.some(function(b){return b.id===id})};
-  // se défendre : très probable
+  var key=G.round+':'+G.tc+':'+p.i;if(p.bk!==key){p.bk=key;p.tr=(p.tr||0)+1}   // compte ses tours dans la manche
+  // se défendre quand on est touché
   if(p.tp&&has('ventouse')&&Math.random()<.9)return useVentouse(p);
   if(p.fl&&has('insecticide')&&Math.random()<.9)return useInsecticide(p);
   // chasse d'eau bonus : quand elle a pas mal de kilos et que ses toilettes ne sont pas bouchées
   if(p.s.some(function(c){return c.b})&&p.k.length&&!p.tp&&kil(p)>=8&&Math.random()<.5&&flush(p)){later(aiTurn,1900);return true}
-  if(Math.random()>=AI_USE)return false;
-  // attaquer : papier toilette sur celui qui a le plus de kilos, mouches sur celui qui en a le moins
-  if(has('papier')){
-    var c=G.P.filter(function(q){return q!==p&&!q.tp});
-    if(c.length){c.sort(function(x,y){return kil(y)-kil(x)||Math.random()-.5});return giveTP(p,c[0])}
+  // attaquer progressivement : 1 bonus au plus par manche, jamais avant son 2e tour, et en les répartissant sur toutes les manches
+  var allowed=Math.ceil((p.n0||0)*G.round/(G.rounds||1));
+  if((p.ou||0)>=1||(p.used||0)>=allowed||(p.tr||0)<2||Math.random()>=AI_USE)return false;
+  if(has('papier')){   // papier toilette : seulement si la cible a des kilos à protéger ou un 7 en réserve
+    var c=G.P.filter(function(q){return q!==p&&!q.tp&&(kil(q)>=3||q.s.length)});
+    if(c.length){c.sort(function(x,y){return kil(y)-kil(x)||Math.random()-.5});p.ou=1;p.used=(p.used||0)+1;return giveTP(p,c[0])}
   }
-  if(has('mouche')){
+  if(has('mouche')){   // mouches : sur celui qui a le moins de kilos
     var c2=G.P.filter(function(q){return q!==p&&!q.fl});
-    if(c2.length){c2.sort(function(x,y){return kil(x)-kil(y)||Math.random()-.5});return giveFlies(p,c2[0])}
+    if(c2.length){c2.sort(function(x,y){return kil(x)-kil(y)||Math.random()-.5});p.ou=1;p.used=(p.used||0)+1;return giveFlies(p,c2[0])}
   }
   return false;
 }
@@ -349,7 +364,7 @@ turn=function(){
   _turn();
 };
 // l'effet se termine à chaque nouvelle manche ; les bonus non utilisés retournent dans le sac à la fin de la partie
-var _sr=startRound;startRound=function(){try{G.P.forEach(function(p){p.tp=null;p.fl=null});G.tpSel=false;G.tgt=null;if(G.round>=1)refillAIBonus()}catch(e){}_sr()};
+var _sr=startRound;startRound=function(){try{G.P.forEach(function(p){p.tp=null;p.fl=null});G.tpSel=false;G.tgt=null;G.P.forEach(function(p){p.ou=0;p.tr=0})}catch(e){}_sr()};
 var _fin=finish;finish=function(){
   try{if(G&&G.P&&!G.finalResultsApplied){var n=0;(G.P[0].bn||[]).forEach(function(b){PF.bag[b.id]=(PF.bag[b.id]||0)+1;n++});G.P[0].bn=[];if(n){Store.save(PF);setTimeout(function(){toast('👝 Bonus non utilisé : retourné dans ton sac',3000)},3400)}}}catch(e){}
   _fin.apply(this,arguments);
