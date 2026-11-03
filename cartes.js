@@ -20,8 +20,9 @@ st.textContent=
 '#bot .mrow{order:-1;flex:0 0 auto;flex-direction:column;align-items:center;gap:0;margin:0 22px 0 0}'+
 '#bot .avw{width:92px;height:92px}'+
 '#bot #myav{width:92px;height:92px}'+
-'#bot .avw .ring{width:106px;height:106px;z-index:6}'+
-'#bot .mt2{align-items:center;margin-top:-10px;position:relative;z-index:4}';
+'#bot .avw .ring{width:106px;height:106px;z-index:4}'+
+'#bot #hand .c{z-index:5}'+
+'#bot .mt2{align-items:center;margin-top:-10px;position:relative;z-index:5}';
 st.textContent+=
 '#srt{display:none!important}'+
 '.c7.kdmc.bUse{box-shadow:0 0 0 2px var(--gold),0 0 10px 2px var(--gold)}'+
@@ -221,11 +222,6 @@ function markOpponents(){
     });
     if(p.fl){for(var k=0;k<3;k++){var f=document.createElement('div');f.className='flz';f.textContent='🪰';f.style.left=x+'px';f.style.top=y+'px';f.style.animationDelay=(-k*.55)+'s';f.style.animationDuration=(1.5+k*.35)+'s';L.appendChild(f)}}
   });
-  var pts=document.querySelectorAll('#plates .pt');
-  G.P.filter(function(p){return !p.me}).forEach(function(p,i){
-    var n=(p.bn||[]).length+p.s.filter(function(c){return c.b}).length,el=pts[i];
-    if(el&&n>0&&!el.querySelector('.bn')){var x=document.createElement('span');x.className='kk bn';x.textContent='🎁'+n;el.appendChild(x)}
-  });
   G.P.forEach(function(p){
     if(p.me)return;var el=document.getElementById('op'+p.i);if(!el)return;
     el.classList.toggle('tpt',!!G.tpSel&&canTarget(p,G.tgt||'papier'));
@@ -304,32 +300,35 @@ function useVentouse(p){
   return true;
 }
 // ----- les IA ont aussi des bonus et les utilisent pendant leur tour
-var AI_BONUS_CHANCE=.5;   // chance par emplacement (2 emplacements par IA) d'avoir un bonus
+var AI_BONUS_CHANCE=.5;   // au départ : chance par emplacement (2 emplacements par IA) d'avoir un bonus
+var AI_ROUND_BONUS=.4;    // à chaque nouvelle manche : chance qu'une IA qui a moins de 2 bonus en reçoive un nouveau
+var AI_USE=.4;            // à chacun de ses tours : chance qu'une IA utilise un bonus qu'elle possède
+function randomBonusId(){var r=Math.random();return r<.3?'papier':r<.6?'mouche':r<.8?'chasse':r<.9?'ventouse':'insecticide'}
+function addBonus(p,id){if(id==='chasse')p.s.push({r:6,s:Math.floor(Math.random()*4),b:1});else(p.bn=p.bn||[]).push({id:id})}
+function nbBonus(p){return(p.bn||[]).length+p.s.filter(function(c){return c.b}).length}
 function giveAIBonus(){
   G.P.forEach(function(p){
     if(p.me)return;p.bn=[];
-    for(var i=0;i<2;i++){
-      if(Math.random()>=AI_BONUS_CHANCE)continue;
-      var r=Math.random(),id=r<.25?'papier':r<.4?'ventouse':r<.6?'chasse':r<.85?'mouche':'insecticide';
-      if(id==='chasse')p.s.push({r:6,s:Math.floor(Math.random()*4),b:1});else p.bn.push({id:id});
-    }
+    for(var i=0;i<2;i++)if(Math.random()<AI_BONUS_CHANCE)addBonus(p,randomBonusId());
   });
 }
+function refillAIBonus(){G.P.forEach(function(p){if(!p.me&&nbBonus(p)<2&&Math.random()<AI_ROUND_BONUS)addBonus(p,randomBonusId())})}
 function aiBonus(p){
-  var bn=p.bn||[];if(!bn.length)return false;
-  var hasV=bn.some(function(b){return b.id==='ventouse'}),hasP=bn.some(function(b){return b.id==='papier'});
-  if(p.tp&&hasV&&Math.random()<.9)return useVentouse(p);
-  if(p.fl&&bn.some(function(b){return b.id==='insecticide'})&&Math.random()<.9)return useInsecticide(p);
-  if(hasP){
+  var bn=p.bn||[],has=function(id){return bn.some(function(b){return b.id===id})};
+  // se défendre : très probable
+  if(p.tp&&has('ventouse')&&Math.random()<.9)return useVentouse(p);
+  if(p.fl&&has('insecticide')&&Math.random()<.9)return useInsecticide(p);
+  // chasse d'eau bonus : quand elle a pas mal de kilos et que ses toilettes ne sont pas bouchées
+  if(p.s.some(function(c){return c.b})&&p.k.length&&!p.tp&&kil(p)>=8&&Math.random()<.5&&flush(p)){later(aiTurn,1900);return true}
+  if(Math.random()>=AI_USE)return false;
+  // attaquer : papier toilette sur celui qui a le plus de kilos, mouches sur celui qui en a le moins
+  if(has('papier')){
     var c=G.P.filter(function(q){return q!==p&&!q.tp});
-    if(c.length){
-      c.sort(function(x,y){return kil(y)-kil(x)||Math.random()-.5});
-      if((kil(c[0])>=8&&Math.random()<.7)||Math.random()<.12)return giveTP(p,c[0]);
-    }
+    if(c.length){c.sort(function(x,y){return kil(y)-kil(x)||Math.random()-.5});return giveTP(p,c[0])}
   }
-  if(bn.some(function(b){return b.id==='mouche'})){
+  if(has('mouche')){
     var c2=G.P.filter(function(q){return q!==p&&!q.fl});
-    if(c2.length){c2.sort(function(x,y){return kil(x)-kil(y)||Math.random()-.5});if(Math.random()<.6)return giveFlies(p,c2[0])}   // vise celui qui a le moins de kilos
+    if(c2.length){c2.sort(function(x,y){return kil(x)-kil(y)||Math.random()-.5});return giveFlies(p,c2[0])}
   }
   return false;
 }
@@ -350,7 +349,7 @@ turn=function(){
   _turn();
 };
 // l'effet se termine à chaque nouvelle manche ; les bonus non utilisés retournent dans le sac à la fin de la partie
-var _sr=startRound;startRound=function(){try{G.P.forEach(function(p){p.tp=null;p.fl=null});G.tpSel=false;G.tgt=null}catch(e){}_sr()};
+var _sr=startRound;startRound=function(){try{G.P.forEach(function(p){p.tp=null;p.fl=null});G.tpSel=false;G.tgt=null;if(G.round>=1)refillAIBonus()}catch(e){}_sr()};
 var _fin=finish;finish=function(){
   try{if(G&&G.P&&!G.finalResultsApplied){var n=0;(G.P[0].bn||[]).forEach(function(b){PF.bag[b.id]=(PF.bag[b.id]||0)+1;n++});G.P[0].bn=[];if(n){Store.save(PF);setTimeout(function(){toast('👝 Bonus non utilisé : retourné dans ton sac',3000)},3400)}}}catch(e){}
   _fin.apply(this,arguments);
