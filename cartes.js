@@ -247,11 +247,16 @@ document.addEventListener('click',function(e){
   var el=e.target.closest('.op.tpt');if(!el)return;
   var p=G.P[parseInt(el.id.slice(2),10)];if(p&&canTarget(p,G.tgt||'papier')){if(G.tgt==='mouche')giveFlies(G.P[0],p);else giveTP(G.P[0],p)}
 },true);
+function ensureTpl(){var L=document.getElementById('tpl');if(!L){L=document.createElement('div');L.id='tpl';document.body.appendChild(L)}return L}
+(function(){   // vidéos de tape / feinte : les cartes malus passent sous la fenêtre ; pendant le décompte elles restent au-dessus
+  var stg=document.getElementById('stage');ensureTpl();
+  if(stg&&window.MutationObserver)new MutationObserver(function(){ensureTpl().style.zIndex=stg.querySelector('video')?'2':''}).observe(stg,{childList:true,subtree:true});
+})();
 function fxAnim(done,src,caption){
   var ov=document.createElement('div');ov.id='tpfx';
   ov.innerHTML='<video src="'+src+'" playsinline preload="auto"></video><p></p>';ov.querySelector('p').textContent=caption;
-  document.body.appendChild(ov);fxp++;var ended=false,e0=ep;
-  function end(){if(ended)return;ended=true;fxp--;ov.remove();if(e0===ep)done()}
+  document.body.appendChild(ov);fxp++;var ended=false,e0=ep;ensureTpl().style.visibility='hidden';   // pas de cartes malus visibles pendant la vidéo
+  function end(){if(ended)return;ended=true;fxp--;ov.remove();ensureTpl().style.visibility='';if(e0===ep)done()}
   var v=ov.querySelector('video');v.muted=!(PF.set&&PF.set.sound);
   var pr=v.play();if(pr&&pr.catch)pr.catch(function(){v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){})});
   v.onerror=function(){setTimeout(end,1200)};
@@ -315,9 +320,9 @@ function useVentouse(p){
   return true;
 }
 // ----- les IA ont aussi des bonus et les utilisent pendant leur tour
-var AI_SLOTS=3,AI_BONUS_CHANCE=.6;   // comme toi : chaque IA choisit ses bonus au début de la partie (3 emplacements)
-var AI_USE=.4;                         // chance d'utiliser un bonus d'attaque à un tour où elle y est autorisée
-function randomBonusId(){var r=Math.random();return r<.3?'papier':r<.6?'mouche':r<.8?'chasse':r<.9?'ventouse':'insecticide'}
+var AI_SLOTS=3,AI_BONUS_CHANCE=.75;   // comme toi : chaque IA choisit ses bonus au début de la partie (3 emplacements)
+var AI_USE=.6;                         // chance d'utiliser un bonus d'attaque à un tour où elle y est autorisée
+function randomBonusId(){var r=Math.random();return r<.35?'papier':r<.7?'mouche':r<.85?'chasse':r<.93?'ventouse':'insecticide'}
 function addBonus(p,id){if(id==='chasse')p.s.push({r:6,s:Math.floor(Math.random()*4),b:1});else(p.bn=p.bn||[]).push({id:id})}
 function giveAIBonus(){
   G.P.forEach(function(p){
