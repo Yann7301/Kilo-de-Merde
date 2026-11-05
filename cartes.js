@@ -22,6 +22,8 @@ st.textContent=
 '#bot #myav{width:92px;height:92px}'+
 '#bot .avw .ring{width:106px;height:106px;z-index:4}'+
 '#bot #hand .c{z-index:5}'+
+'#bot,#bot #hw,#bot #me{pointer-events:none}#bot #hand .c,#bot #flush .c7,#bot #btns button{pointer-events:auto}'+
+'#tap{display:none!important}#mym{gap:0!important}#flzl{position:fixed;inset:0;pointer-events:none;z-index:1}.tpb.u{transform:rotate(-4deg)}'+
 '#bot .mt2{align-items:center;margin-top:-10px;position:relative;z-index:5}';
 st.textContent+=
 '#srt{display:none!important}'+
@@ -85,8 +87,9 @@ function skin(){
   var me=G.P[0],k4=me.k.slice(-4),fe=Array.prototype.forEach;
   fe.call(document.getElementById('hand').children,function(el,i){sp(el,handIdx(me.h[i]))});
   layoutHand();
-  fe.call(document.getElementById('mym').children,function(el,i){if(k4[i])sp(el,kIdx(k4[i]))});
-  renderTray();markOpponents();layoutFans();placePile();renderPile();
+  var mym=document.getElementById('mym');mym.innerHTML='';
+  me.k.slice(-8).forEach(function(c,i){var d=document.createElement('div');d.className='mc2';sp(d,kIdx(c));if(i)d.style.marginLeft='-21px';mym.appendChild(d)});
+  renderTray();markOpponents();layoutFans();placePile();renderPile();cueTap();
 }
 function buildTas(){
   var t=[],i,j,k;
@@ -128,6 +131,7 @@ function fixRules(){
   }
 }
 fixRules();
+Array.prototype.forEach.call(document.querySelectorAll('#rules p'),function(p){var t=p.textContent;if(t.indexOf('TAPER')>-1||t.indexOf('SUIVRE')>-1)p.textContent=t.replace(/ton bouton TAPER et le tas( de pioche)? clignotent, et ça bipe\. Touche l'un des deux pour taper\. Il reste bloqué tant que tu n'as pas 4 cartes identiques\./,'le tas de pioche clignote et ça bipe. Touche-le pour taper (il ne réagit que si tu as 4 cartes identiques).').replace('ton bouton TAPER et le tas clignotent','le tas de pioche clignote').replace('touche SUIVRE ou la grosse main au centre','touche le tas de pioche ou la grosse main au centre').replace('avec le bouton SUIVRE','en touchant le tas de pioche')});
 
 // ===== BONUS : papier toilette (toilettes bouchées) et ventouse =====
 var BIDX={insecticide:0,mouche:1,papier:2,ventouse:3,chasse:4};   // place des cartes bonus dans la planche
@@ -221,7 +225,7 @@ function sideOf(p){var q=SEATS[G.seats[p.i-1]];return (q[2]-q[0])>100?'l':'r'}
 function markOpponents(){
   if(G.tpSel&&!usableNow())G.tpSel=false;
   var L=document.getElementById('tpl');if(!L){L=document.createElement('div');L.id='tpl';document.body.appendChild(L)}
-  L.innerHTML='';var B=bgBox();
+  L.innerHTML='';ensureFlz().innerHTML='';var B=bgBox();
   G.P.forEach(function(p){
     if(!p.tp&&!p.fl)return;var x,y,side;
     if(p.me){
@@ -230,12 +234,16 @@ function markOpponents(){
       if(matchMedia('(orientation:portrait)').matches){var t0=cx;cx=cy;cy=innerWidth-t0}
       x=cx;y=cy;side='l';
     }else{var q=SEATS[G.seats[p.i-1]];x=B.ox+B.s*q[0];y=B.oy+B.s*q[1];side=sideOf(p)}
-    var bl=side==='l'?x-72:x+32,n2=0;
+    var W=matchMedia('(orientation:portrait)').matches?innerHeight:innerWidth,cnt=(p.tp?1:0)+(p.fl?1:0),tot=40+26*(cnt-1);
+    var above=!p.me&&(x<112||x>W-112);   // joueurs au bord de l'écran : cartes malus au-dessus de l'avatar pour rester entièrement visibles
+    var n2=0;
     [['tp',BIDX.papier],['fl',BIDX.mouche]].forEach(function(z){
-      if(!p[z[0]])return;var d=document.createElement('div');d.className='tpb '+side;sp(d,z[1]);
-      d.style.left=(bl+(side==='l'?-1:1)*26*n2)+'px';d.style.top=(y-42+10*n2)+'px';L.appendChild(d);n2++;
+      if(!p[z[0]])return;var d=document.createElement('div');d.className='tpb '+(above?'u':side);sp(d,z[1]);
+      var lf=above?x-tot/2+26*n2:(side==='l'?x-72-26*n2:x+32+26*n2),tt=above?y-92:y-42+10*n2;
+      lf=Math.max(4,Math.min(W-44,lf));
+      d.style.left=lf+'px';d.style.top=tt+'px';L.appendChild(d);n2++;
     });
-    if(p.fl){for(var k=0;k<3;k++){var f=document.createElement('div');f.className='flz';f.textContent='🪰';f.style.left=x+'px';f.style.top=y+'px';f.style.animationDelay=(-k*.55)+'s';f.style.animationDuration=(1.5+k*.35)+'s';L.appendChild(f)}}
+    if(p.fl){var LF=ensureFlz();for(var k=0;k<3;k++){var f=document.createElement('div');f.className='flz';f.textContent='🪰';f.style.left=x+'px';f.style.top=y+'px';f.style.animationDelay=(-k*.55)+'s';f.style.animationDuration=(1.5+k*.35)+'s';(p.me?L:LF).appendChild(f)}}
   });
   G.P.forEach(function(p){
     if(p.me)return;var el=document.getElementById('op'+p.i);if(!el)return;
@@ -247,6 +255,7 @@ document.addEventListener('click',function(e){
   var el=e.target.closest('.op.tpt');if(!el)return;
   var p=G.P[parseInt(el.id.slice(2),10)];if(p&&canTarget(p,G.tgt||'papier')){if(G.tgt==='mouche')giveFlies(G.P[0],p);else giveTP(G.P[0],p)}
 },true);
+function ensureFlz(){var L=document.getElementById('flzl');if(!L){L=document.createElement('div');L.id='flzl';document.body.appendChild(L)}return L}
 function ensureTpl(){var L=document.getElementById('tpl');if(!L){L=document.createElement('div');L.id='tpl';document.body.appendChild(L)}return L}
 (function(){   // vidéos de tape / feinte : les cartes malus passent sous la fenêtre ; pendant le décompte elles restent au-dessus
   var stg=document.getElementById('stage');ensureTpl();
@@ -255,8 +264,8 @@ function ensureTpl(){var L=document.getElementById('tpl');if(!L){L=document.crea
 function fxAnim(done,src,caption){
   var ov=document.createElement('div');ov.id='tpfx';
   ov.innerHTML='<video src="'+src+'" playsinline preload="auto"></video><p></p>';ov.querySelector('p').textContent=caption;
-  document.body.appendChild(ov);fxp++;var ended=false,e0=ep;ensureTpl().style.visibility='hidden';   // pas de cartes malus visibles pendant la vidéo
-  function end(){if(ended)return;ended=true;fxp--;ov.remove();ensureTpl().style.visibility='';if(e0===ep)done()}
+  document.body.appendChild(ov);fxp++;var ended=false,e0=ep;ensureTpl().style.visibility='hidden';ensureFlz().style.visibility='hidden';   // pas de cartes malus visibles pendant la vidéo
+  function end(){if(ended)return;ended=true;fxp--;ov.remove();ensureTpl().style.visibility='';ensureFlz().style.visibility='';if(e0===ep)done()}
   var v=ov.querySelector('video');v.muted=!(PF.set&&PF.set.sound);
   var pr=v.play();if(pr&&pr.catch)pr.catch(function(){v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){})});
   v.onerror=function(){setTimeout(end,1200)};
@@ -414,6 +423,10 @@ function pr(i,k){var v=Math.sin(i*12.9898+k*78.233)*43758.5453;return v-Math.flo
 function placePile(){   // le tas au centre de la nouvelle table
   var B=bgBox(),px=B.ox+B.s*TBL.cx,py=B.oy+B.s*TBL.cy,a=document.getElementById('pl'),m=document.getElementById('mc'),l=document.getElementById('lc');
   if(a){a.style.left=px+'px';a.style.top=py+'px'}if(m){m.style.left=(px+112)+'px';m.style.top=py+'px'}if(l){l.style.left=(px-112)+'px';l.style.top=py+'px'}
+}
+function cueTap(){   // pas de bouton : le tas clignote quand il faut le toucher pour suivre
+  var t=document.getElementById('tas');if(!t||typeof G==='undefined'||!G||!G.P)return;var c=G.call;
+  if(G.phase==='call'&&c&&c.i!==0&&!c.fol.some(function(f){return f.p===G.P[0]}))t.classList.add('ok');
 }
 function renderPile(){
   var t=document.getElementById('tas');if(typeof G==='undefined'||!t||!G||!G.tas)return;
