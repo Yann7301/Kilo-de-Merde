@@ -59,6 +59,8 @@ st.textContent+='.soon{position:absolute;left:100%;top:50%;margin-left:14px;tran
 '.soon i{font-style:normal;display:inline-block;margin-right:3px;animation:soonbob 1.2s ease-in-out infinite}'+
 '@keyframes soonpulse{0%,100%{box-shadow:0 3px 0 #a97a10,0 0 8px rgba(255,210,80,.45)}50%{box-shadow:0 3px 0 #a97a10,0 0 22px rgba(255,210,80,.95)}}'+
 '@keyframes soonbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(14deg)}}';
+st.textContent+='#hm1 .mb.gr:disabled{opacity:1!important;background:linear-gradient(#3fd6c6,#1b8f9e)!important;box-shadow:0 4px 0 #0b4f58,0 0 12px rgba(63,214,198,.55)!important;color:#fff!important;text-shadow:0 1px 2px #0009!important;cursor:default;animation:mpglow 2.2s ease-in-out infinite}'+
+'@keyframes mpglow{0%,100%{box-shadow:0 4px 0 #0b4f58,0 0 8px rgba(63,214,198,.4)}50%{box-shadow:0 4px 0 #0b4f58,0 0 20px rgba(63,214,198,.9)}}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
