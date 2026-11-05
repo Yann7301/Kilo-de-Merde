@@ -54,6 +54,11 @@ st.textContent+='#tas.stk{width:66px;height:46px;filter:drop-shadow(0 6px 6px #0
 '#tas .tasl i{border-width:2px;box-shadow:0 1px 2px #0009}';
 st.textContent+='.flz{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;line-height:16px;text-align:center;font-size:15px;pointer-events:none;animation:flyorbit 1.6s linear infinite}'+
 '@keyframes flyorbit{from{transform:rotate(0deg) translateX(56px) rotate(0deg)}to{transform:rotate(360deg) translateX(56px) rotate(-360deg)}}';
+st.textContent+='.soon{position:absolute;left:100%;top:50%;margin-left:14px;transform:translateY(-50%) rotate(-3deg);white-space:normal;text-align:center;line-height:1.15;pointer-events:none;background:linear-gradient(135deg,#ffe27a,#f6b82e 55%,#e8891a);color:#4a2c00;font-weight:900;font-size:12px;letter-spacing:.2px;padding:3px 10px;border-radius:13px;border:2px solid #fff9;box-shadow:0 3px 0 #a97a10,0 0 10px rgba(255,210,80,.6);animation:soonpulse 1.8s ease-in-out infinite}'+
+'.soon::before{content:"";position:absolute;left:-9px;top:50%;margin-top:-6px;border:6px solid transparent;border-left:0;border-right:7px solid #f6b82e}'+
+'.soon i{font-style:normal;display:inline-block;margin-right:3px;animation:soonbob 1.2s ease-in-out infinite}'+
+'@keyframes soonpulse{0%,100%{box-shadow:0 3px 0 #a97a10,0 0 8px rgba(255,210,80,.45)}50%{box-shadow:0 3px 0 #a97a10,0 0 22px rgba(255,210,80,.95)}}'+
+'@keyframes soonbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(14deg)}}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -534,6 +539,13 @@ st.textContent+=
     Array.prototype.forEach.call($('shgrid').querySelectorAll('.it'),function(el,i){el.classList.add('zo');el.onclick=function(e){if(e.target.closest&&e.target.closest('button'))return;open(t,i)}});
   }catch(e){}};
   window.__zoom={open:open,close:close,step:step};
+})();
+// ===== menu : « Bientôt disponible » à côté du bouton Multijoueurs =====
+(function(){
+  var b=document.querySelector('#hm1 .mb.gr');if(!b||b.parentNode.classList.contains('soonw'))return;
+  var w=document.createElement('div');w.className='soonw';w.style.position='relative';
+  b.parentNode.insertBefore(w,b);w.appendChild(b);b.style.width='100%';
+  var t=document.createElement('span');t.className='soon';t.innerHTML='<i>🚀</i>Bientôt<br>disponible';w.appendChild(t);
 })();
 // ----- branchement sur le jeu existant
 var _render=render;render=function(){_render.apply(this,arguments);try{skin()}catch(e){}};
