@@ -68,6 +68,10 @@ st.textContent+='@property --cd{syntax:"<angle>";inherits:false;initial-value:36
 '#feint.cooldown:disabled{opacity:1!important}'+
 '@keyframes feinteCd{from{--cd:360deg}to{--cd:0deg}}';
 new Image().src='feinte.png';
+st.textContent+='#hm1 .mb.dfi:disabled{opacity:1!important;background:linear-gradient(#ff9a62,#d9482b)!important;box-shadow:0 4px 0 #7a2410,0 0 12px rgba(255,150,98,.55)!important;color:#fff!important;text-shadow:0 1px 2px #0009!important;cursor:default;animation:dfglow 2.2s ease-in-out infinite}'+
+'@keyframes dfglow{0%,100%{box-shadow:0 4px 0 #7a2410,0 0 8px rgba(255,150,98,.4)}50%{box-shadow:0 4px 0 #7a2410,0 0 20px rgba(255,150,98,.9)}}'+
+'.soon.l{left:auto;right:100%;margin-left:0;margin-right:14px;transform:translateY(-50%) rotate(3deg)}'+
+'.soon.l::before{left:auto;right:-9px;border-right:0;border-left:7px solid #f6b82e}';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -567,6 +571,14 @@ var _startCall=startCall;startCall=function(i,real,after){   // une feinte lanc�
   try{if(!real&&i!==0&&G&&G.P[i])G.P[i].fcEnd=performance.now()+FEINT_CD*1000}catch(e){}
 };
 Array.prototype.forEach.call(document.querySelectorAll('#rules p'),function(p){if(p.textContent.indexOf('45 secondes')>-1)p.textContent=p.textContent.replace(/45 secondes/g,FEINT_CD+' secondes')});
+// ===== menu : onglet « Défis » au-dessus de Magasin, avec l'étiquette « Bientôt disponible » =====
+(function(){
+  var shopBtn=document.querySelector('#hm1 .col button[onclick="openShop()"]');if(!shopBtn||document.querySelector('#hm1 .mb.dfi'))return;
+  var w=document.createElement('div');w.className='soonw';w.style.position='relative';
+  var b=document.createElement('button');b.className='mb dfi';b.disabled=true;b.style.width='100%';b.textContent='🎯 DÉFIS';
+  var t=document.createElement('span');t.className='soon l';t.innerHTML='<i>🚀</i>Bientôt<br>disponible';
+  w.appendChild(b);w.appendChild(t);shopBtn.parentNode.insertBefore(w,shopBtn);
+})();
 // ----- branchement sur le jeu existant
 var _render=render;render=function(){_render.apply(this,arguments);try{skin()}catch(e){}};
 var _start=start;start=function(n){_start(n);try{['toilettes_bouchees.mp4','ventouse.mp4','mouches.mp4','insecticide.mp4'].forEach(function(u){fetch(u).catch(function(){})})}catch(e){}try{G.tas=buildTas();giveAIBonus();render()}catch(e){}};
