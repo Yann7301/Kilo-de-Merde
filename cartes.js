@@ -41,6 +41,7 @@ st.textContent+=
 st.textContent+='.tf i{width:30px!important;height:43px!important;left:-15px!important;top:-21.5px!important;border:2px solid #fff!important;border-radius:6px!important;transform-origin:50% 50%!important;box-shadow:0 2px 6px #000c!important;transition:none}';
 /* tas de pioche : angle de la diagonale (degrés) et descente (px) */
 var PILE_ANGLE=-28,PILE_DOWN=4;
+var FEINT_CD=60;   // attente (en secondes) entre deux feintes, pour tous les joueurs
 /* nouvelle table (table2.jpg) : repères en pixels de l'image 1376 x 768 ; places = [avatar x, y, cartes x, y] ; avatars sur les couvercles des toilettes */
 var TBL={w:1376,h:768,cx:688,cy:428};
 [[1255,375,1155,402],[1085,160,1009,265],[688,150,687,252],[310,160,373,265],[125,372,248,421]].forEach(function(q,i){SEATS[i]=q});
@@ -61,6 +62,12 @@ st.textContent+='.soon{position:absolute;left:100%;top:50%;margin-left:14px;tran
 '@keyframes soonbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(14deg)}}';
 st.textContent+='#hm1 .mb.gr:disabled{opacity:1!important;background:linear-gradient(#3fd6c6,#1b8f9e)!important;box-shadow:0 4px 0 #0b4f58,0 0 12px rgba(63,214,198,.55)!important;color:#fff!important;text-shadow:0 1px 2px #0009!important;cursor:default;animation:mpglow 2.2s ease-in-out infinite}'+
 '@keyframes mpglow{0%,100%{box-shadow:0 4px 0 #0b4f58,0 0 8px rgba(63,214,198,.4)}50%{box-shadow:0 4px 0 #0b4f58,0 0 20px rgba(63,214,198,.9)}}';
+st.textContent+='@property --cd{syntax:"<angle>";inherits:false;initial-value:360deg}'+
+'#feint{background-image:url(feinte.png)!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}'+
+'#feint.cooldown::after{content:"";position:absolute;inset:0;width:auto!important;border-radius:50%;background:conic-gradient(from 0deg,transparent calc(360deg - var(--cd)),rgba(70,70,70,.9) 0)!important;pointer-events:none;animation:feinteCd '+FEINT_CD+'s linear forwards!important}'+
+'#feint.cooldown:disabled{opacity:1!important}'+
+'@keyframes feinteCd{from{--cd:360deg}to{--cd:0deg}}';
+new Image().src='feinte.png';
 document.head.appendChild(st);
 new Image().src=SHEET;
 
@@ -549,6 +556,17 @@ st.textContent+=
   b.parentNode.insertBefore(w,b);w.appendChild(b);b.style.width='100%';
   var t=document.createElement('span');t.className='soon';t.innerHTML='<i>🚀</i>Bientôt<br>disponible';w.appendChild(t);
 })();
+// ===== bouton feinte : attente de 60 s avec un grisé qui se retire en tournant =====
+startFeintCd=function(){
+  var game=G;G.P[0].fcEnd=performance.now()+FEINT_CD*1000;
+  var btn=$('feint');btn.classList.remove('cooldown');void btn.offsetWidth;btn.classList.add('cooldown');
+  setTimeout(function(){if(G!==game)return;btn.classList.remove('cooldown');if(G&&G.P)render()},FEINT_CD*1000+50);
+};
+var _startCall=startCall;startCall=function(i,real,after){   // une feinte lancée par une IA déclenche aussi l'attente de 60 s
+  _startCall(i,real,after);
+  try{if(!real&&i!==0&&G&&G.P[i])G.P[i].fcEnd=performance.now()+FEINT_CD*1000}catch(e){}
+};
+Array.prototype.forEach.call(document.querySelectorAll('#rules p'),function(p){if(p.textContent.indexOf('45 secondes')>-1)p.textContent=p.textContent.replace(/45 secondes/g,FEINT_CD+' secondes')});
 // ----- branchement sur le jeu existant
 var _render=render;render=function(){_render.apply(this,arguments);try{skin()}catch(e){}};
 var _start=start;start=function(n){_start(n);try{['toilettes_bouchees.mp4','ventouse.mp4','mouches.mp4','insecticide.mp4'].forEach(function(u){fetch(u).catch(function(){})})}catch(e){}try{G.tas=buildTas();giveAIBonus();render()}catch(e){}};
